@@ -94,6 +94,9 @@
   .channel-choice label{display:flex;align-items:center;gap:6px;cursor:pointer;}
 
   .chart-card{background:var(--paper);border:1px solid #E4DAC2;padding:32px;margin-top:8px;}
+  .chart-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  .chart-inner{min-width:560px;height:280px;}
+  .chart-swipe-hint{display:none;font-size:12px;color:var(--gold-dim);margin-top:10px;font-family:'IBM Plex Mono',monospace;}
   .chart-note{margin-top:16px;font-size:12px;color:var(--ink-muted);}
 
   .trust{background:var(--ink);color:var(--text-dark-1);}
@@ -124,6 +127,12 @@
     .trust-grid{grid-template-columns:1fr;}
     .optin-grid{grid-template-columns:1fr;}
     .stamp-note{margin-left:0;width:100%;}
+    .nav{flex-wrap:wrap;row-gap:10px;padding:18px 20px;}
+    .nav .eyebrow{font-size:10px;letter-spacing:0.08em;width:100%;}
+    .logo-img{height:30px;}
+    .chart-card{padding:20px 14px;}
+    .chart-inner{height:200px;}
+    .chart-swipe-hint{display:block;}
   }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
@@ -265,7 +274,10 @@
       <p>Year-end spot price in USD per troy ounce, the global benchmark. Approximate figures for illustration — always check the live price above for today's actual rate.</p>
     </div>
     <div class="chart-card">
-      <canvas id="gold-history-chart" height="110"></canvas>
+      <div class="chart-scroll">
+        <div class="chart-inner"><canvas id="gold-history-chart"></canvas></div>
+      </div>
+      <p class="chart-swipe-hint">Swipe to see all years &rarr;</p>
       <p class="chart-note">Sources: LBMA-linked market reporting (JM Bullion, USAGOLD, Statista). Figures are rounded year-end approximations, not exact fixings.</p>
     </div>
   </div>
@@ -365,6 +377,7 @@
       },
       options: {
         responsive: true,
+        maintainAspectRatio: false,
         plugins: {
           legend: { display: false },
           tooltip: {
