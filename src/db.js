@@ -27,6 +27,7 @@ async function init() {
       full_name TEXT NOT NULL,
       email TEXT NOT NULL,
       phone TEXT NOT NULL,
+      channel TEXT NOT NULL DEFAULT 'email',
       source TEXT NOT NULL DEFAULT 'landing_page',
       created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
       UNIQUE(email)
@@ -43,21 +44,67 @@ async function init() {
     );
   `);
 
+  // Keeps a short rolling history so we can detect meaningful day-over-day
+  // swings (see src/priceAlerts.js) without needing a paid historical API.
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS gold_price_history (
+      id SERIAL PRIMARY KEY,
+      price NUMERIC NOT NULL,
+      recorded_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+  `);
+
   console.log('[db] Connected and tables ready.');
 }
 
-async function saveOptIn({ fullName, email, phone, source }) {
+async function saveOptIn({ fullName, email, phone, channel, source }) {
   if (!enabled) return { persisted: false };
   try {
     await pool.query(
-      `INSERT INTO optins (full_name, email, phone, source) VALUES ($1, $2, $3, $4)
-       ON CONFLICT (email) DO UPDATE SET full_name = EXCLUDED.full_name, phone = EXCLUDED.phone`,
-      [fullName, email, phone, source || 'landing_page']
+      `INSERT INTO optins (full_name, email, phone, channel, source) VALUES ($1, $2, $3, $4, $5)
+       ON CONFLICT (email) DO UPDATE SET full_name = EXCLUDED.full_name, phone = EXCLUDED.phone, channel = EXCLUDED.channel`,
+      [fullName, email, phone, channel || 'email', source || 'landing_page']
     );
     return { persisted: true };
   } catch (err) {
     console.error('[db] Failed to save opt-in:', err.message);
     return { persisted: false, error: err.message };
+  }
+}
+
+async function getSubscribers() {
+  if (!enabled) return [];
+  try {
+    const res = await pool.query('SELECT full_name, email, phone, channel FROM optins');
+    return res.rows;
+  } catch (err) {
+    console.error('[db] Failed to load subscribers:', err.message);
+    return [];
+  }
+}
+
+async function recordPriceHistory(price) {
+  if (!enabled) return;
+  try {
+    await pool.query('INSERT INTO gold_price_history (price) VALUES ($1)', [price]);
+    // keep only the last ~90 days of daily rows so this table doesn't grow forever
+    await pool.query(`
+      DELETE FROM gold_price_history
+      WHERE id NOT IN (SELECT id FROM gold_price_history ORDER BY recorded_at DESC LIMIT 90)
+    `);
+  } catch (err) {
+    console.error('[db] Failed to record price history:', err.message);
+  }
+}
+
+async function getPreviousPrice() {
+  if (!enabled) return null;
+  try {
+    const res = await pool.query('SELECT price FROM gold_price_history ORDER BY recorded_at DESC OFFSET 1 LIMIT 1');
+    return res.rows.length ? Number(res.rows[0].price) : null;
+  } catch (err) {
+    console.error('[db] Failed to load previous price:', err.message);
+    return null;
   }
 }
 
@@ -91,4 +138,4 @@ async function loadGoldPrice() {
   }
 }
 
-module.exports = { enabled, init, saveOptIn, saveGoldPrice, loadGoldPrice };
+module.exports = { enabled, init, saveOptIn, saveGoldPrice, loadGoldPrice, getSubscribers, recordPriceHistory, getPreviousPrice };

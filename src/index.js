@@ -35,7 +35,7 @@ app.get('/api/gold-price', (req, res) => {
 });
 
 app.post('/api/optin', optinLimiter, async (req, res) => {
-  const { name, email, phone, consent } = req.body || {};
+  const { name, email, phone, consent, channel } = req.body || {};
 
   if (!name || !email || !phone) {
     return res.status(400).json({ ok: false, error: 'Name, email, and mobile number are all required.' });
@@ -50,8 +50,9 @@ app.post('/api/optin', optinLimiter, async (req, res) => {
   if (consent !== true) {
     return res.status(400).json({ ok: false, error: 'Consent is required to sign up.' });
   }
+  const normalizedChannel = ['email', 'sms', 'both'].includes(channel) ? channel : 'email';
 
-  const result = await db.saveOptIn({ fullName: name.trim(), email: email.trim().toLowerCase(), phone: normalizedPhone });
+  const result = await db.saveOptIn({ fullName: name.trim(), email: email.trim().toLowerCase(), phone: normalizedPhone, channel: normalizedChannel });
   res.json({ ok: true, persisted: result.persisted });
 });
 

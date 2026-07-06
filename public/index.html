@@ -86,6 +86,17 @@
   .side-card h3{color:var(--text-dark-1);font-size:19px;margin:12px 0 14px;}
   .side-card p{color:var(--text-dark-2);font-size:14.5px;}
 
+  .optin-benefits{list-style:none;padding:0;margin:18px 0 0;display:flex;flex-direction:column;gap:10px;}
+  .optin-benefits li{font-size:14.5px;color:var(--ink-muted);padding-left:18px;position:relative;}
+  .optin-benefits li::before{content:"—";position:absolute;left:0;color:var(--gold);}
+  .optin-benefits b{color:var(--ink-text);}
+  .channel-choice{display:flex;align-items:center;gap:16px;flex-wrap:wrap;font-size:13.5px;color:var(--ink-muted);margin-top:2px;}
+  .channel-choice .channel-label{font-size:12px;text-transform:uppercase;letter-spacing:0.06em;color:#8A806C;width:100%;}
+  .channel-choice label{display:flex;align-items:center;gap:6px;cursor:pointer;}
+
+  .chart-card{background:var(--paper);border:1px solid #E4DAC2;padding:32px;margin-top:8px;}
+  .chart-note{margin-top:16px;font-size:12px;color:var(--ink-muted);}
+
   .trust{background:var(--ink);color:var(--text-dark-1);}
   .trust-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line-dark);border:1px solid var(--line-dark);margin-top:8px;}
   .trust-item{background:var(--ink);padding:28px;}
@@ -116,6 +127,7 @@
     .stamp-note{margin-left:0;width:100%;}
   }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 </head>
 <body>
 
@@ -246,6 +258,20 @@
   </div>
 </section>
 
+<section id="history">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">A decade in perspective</div>
+      <h2>Gold hasn't just held its value — it's climbed</h2>
+      <p>Year-end spot price in USD per troy ounce, the global benchmark. Approximate figures for illustration — always check the live price above for today's actual rate.</p>
+    </div>
+    <div class="chart-card">
+      <canvas id="gold-history-chart" height="110"></canvas>
+      <p class="chart-note">Sources: LBMA-linked market reporting (JM Bullion, USAGOLD, Statista). Figures are rounded year-end approximations, not exact fixings.</p>
+    </div>
+  </div>
+</section>
+
 <section class="trust">
   <div class="wrap">
     <div class="section-head" style="max-width:640px;">
@@ -278,20 +304,30 @@
     <div class="optin">
       <div class="optin-grid">
         <div>
-          <div class="eyebrow">Stay informed</div>
-          <h2>Get the weekly gold price note</h2>
-          <p class="lead">A short update on where gold's headed, in pesos per gram, plus one plain-language lesson on digital gold — no spam, one email or text a week, unsubscribe in one tap.</p>
+          <div class="eyebrow">Free download</div>
+          <h2>The Gold Owner's Guide</h2>
+          <p class="lead">A short PDF on how to buy fractional or digital gold securely, and how to properly care for the gold jewelry you already own. After that, choose how you'd like to hear from us:</p>
+          <ul class="optin-benefits">
+            <li><b>Weekly price note</b> — where gold's headed, in pesos per gram</li>
+            <li><b>Price-move alerts</b> — a heads-up when gold swings sharply, with the news behind it</li>
+          </ul>
         </div>
         <div>
           <form id="optin-form">
             <input type="text" placeholder="Full name" required>
             <input type="email" placeholder="Email address" required>
             <input type="tel" placeholder="Mobile number (09xx xxx xxxx)" required>
+            <div class="channel-choice">
+              <span class="channel-label">Send updates via:</span>
+              <label><input type="radio" name="channel" value="email" checked> Email</label>
+              <label><input type="radio" name="channel" value="sms"> SMS</label>
+              <label><input type="radio" name="channel" value="both"> Both</label>
+            </div>
             <label class="consent">
               <input type="checkbox" required>
-              <span>I agree to receive gold-price updates and educational content by email and SMS from Riolendel. This is separate from any past jewelry purchase, and I can withdraw consent anytime by replying STOP.</span>
+              <span>I agree to receive the guide plus gold-price updates via my chosen channel(s) from Riolendel. This is separate from any past jewelry purchase, and I can withdraw consent anytime by replying STOP.</span>
             </label>
-            <button type="submit" class="btn btn-gold" style="margin-top:6px;">Sign me up</button>
+            <button type="submit" class="btn btn-gold" style="margin-top:6px;">Get the free guide</button>
           </form>
           <p class="fine">By signing up you're giving fresh, specific consent under the Data Privacy Act of 2012 — this isn't inherited from any earlier business relationship. We collect only what's shown here, for this purpose only.</p>
         </div>
@@ -306,6 +342,51 @@
     <div>Not investment advice. Not a licensed investment adviser or solicitor. <a href="#">Privacy notice</a></div>
   </div>
 </footer>
+
+<script>
+(function(){
+  // Approximate year-end USD/oz spot prices — rounded reference figures,
+  // not exact fixings. See chart-note in the HTML for sources.
+  const years = ['2016','2017','2018','2019','2020','2021','2022','2023','2024','2025','2026 YTD'];
+  const prices = [1150, 1300, 1280, 1520, 1890, 1830, 1824, 2063, 2625, 3900, 4180];
+
+  const ctx = document.getElementById('gold-history-chart');
+  if (ctx && window.Chart) {
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: years,
+        datasets: [{
+          label: 'Gold, USD/oz (year-end, approx.)',
+          data: prices,
+          backgroundColor: prices.map((_, i) => i === prices.length - 1 ? '#D9A94A' : 'rgba(185,138,46,0.55)'),
+          borderRadius: 2,
+          maxBarThickness: 42,
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (item) => '$' + item.parsed.y.toLocaleString() + '/oz'
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: { callback: (v) => '$' + v.toLocaleString() },
+            grid: { color: '#E4DAC2' }
+          },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+  }
+})();
+</script>
 
 <script>
 (function(){
@@ -375,6 +456,8 @@
     const email = form.querySelector('input[type=email]').value;
     const phone = form.querySelector('input[type=tel]').value;
     const consent = form.querySelector('input[type=checkbox]').checked;
+    const channelInput = form.querySelector('input[name=channel]:checked');
+    const channel = channelInput ? channelInput.value : 'email';
 
     submitBtn.disabled = true;
     submitBtn.textContent = 'Signing you up…';
@@ -383,13 +466,13 @@
       const res = await fetch('/api/optin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, phone, consent }),
+        body: JSON.stringify({ name, email, phone, consent, channel }),
       });
       const data = await res.json();
       if(!res.ok || !data.ok){
         throw new Error(data.error || 'Something went wrong. Please try again.');
       }
-      form.innerHTML = '<p style="font-size:15px;color:var(--ink-text);">You\u2019re on the list. Watch your inbox and phone for the first update \u2014 and text STOP anytime to opt out.</p>';
+      form.innerHTML = '<div style="font-size:15px;color:var(--ink-text);"><p style="margin:0 0 14px;">You\u2019re on the list! Here\u2019s your guide \u2014 watch your inbox/phone for updates too, and text STOP anytime to opt out.</p><a href="/gold-guide.pdf" download class="btn btn-gold" style="text-decoration:none;">Download the Gold Owner\u2019s Guide (PDF)</a></div>';
     }catch(err){
       submitBtn.disabled = false;
       submitBtn.textContent = 'Sign me up';

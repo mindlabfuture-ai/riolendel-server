@@ -1,5 +1,6 @@
 const cron = require('node-cron');
 const db = require('./db');
+const priceAlerts = require('./priceAlerts');
 
 // In-memory cache, backed by Postgres if available. Every visitor's
 // request hits this cache, never GoldAPI.io directly — so your GoldAPI
@@ -35,6 +36,11 @@ async function fetchFromGoldApi() {
     };
     await db.saveGoldPrice({ price: data.price, changePct: data.chp || 0 });
     console.log(`[gold-price] Updated: $${data.price}/oz (${data.chp}% )`);
+
+    // Checks day-over-day swing and alerts subscribers if it's a big one.
+    // Safe to leave running even with 0 subscribers or no email/SMS
+    // provider wired up yet — see src/notify.js for what's still a stub.
+    await priceAlerts.checkForNotableMove(data.price);
   } catch (err) {
     console.error('[gold-price] Fetch failed, keeping last known price:', err.message);
     // Deliberately does NOT clear the cache — a failed fetch should

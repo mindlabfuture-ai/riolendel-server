@@ -76,3 +76,42 @@ setup. Budget for that before you rely on this for real opt-ins.
 - No admin view of collected opt-ins yet — for now, check them via
   Railway's Postgres data tab, or `psql` in with the connection string
   from the Variables tab.
+
+## Historical price chart
+
+The landing page now shows a bar chart of gold's approximate year-end
+USD/oz price for the last ~10 years, rendered client-side with Chart.js
+(loaded from a CDN — no build step needed). The dataset is a small
+hardcoded array in `public/index.html` (search for "Approximate
+year-end USD/oz"), since past years' prices don't change — no API
+calls needed for this at all. Update that array yourself once a year
+when a new year closes out, and consider swapping in exact LBMA figures
+if you want more precision than the rounded reference numbers currently
+there.
+
+## Price-move alerts (partially built — needs a provider to go live)
+
+`src/priceAlerts.js` compares each day's fetched gold price to the
+previous day (stored in a small `gold_price_history` table) and flags
+moves of 1.5% or more as "notable." When one happens, it's meant to
+alert everyone who opted in, using their chosen channel (email, SMS,
+or both — collected via the new radio buttons on the opt-in form).
+
+**What's real:** the detection logic, the subscriber list with channel
+preference, and the day-over-day comparison.
+
+**What's a stub:** `src/notify.js` currently just logs what it *would*
+send — it isn't wired to a real email or SMS provider yet, since that
+needs your own account and API key. To make it live:
+1. Sign up for an email provider (Resend or Postmark) and an SMS
+   gateway if you want PH SMS (Semaphore or Movider).
+2. Add their API keys to your Railway environment variables.
+3. Replace the `console.log` calls in `src/notify.js` with the real
+   `fetch()` calls (commented examples are already in that file).
+
+**One more honest limitation:** this alerts on the *size* of a price
+move, not the *reason* for it. Actually identifying "the news that
+caused it" would need either a paid news API or a person glancing at
+gold news before the alert goes out and adding a one-line cause. Worth
+doing manually at first rather than promising fully automatic
+news-linked alerts before that's really wired up.
