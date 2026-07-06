@@ -83,6 +83,17 @@ async function getSubscribers() {
   }
 }
 
+async function getSubscribersDetailed() {
+  if (!enabled) return [];
+  try {
+    const res = await pool.query('SELECT full_name, email, phone, channel, source, created_at FROM optins ORDER BY created_at DESC');
+    return res.rows;
+  } catch (err) {
+    console.error('[db] Failed to load detailed subscribers:', err.message);
+    return [];
+  }
+}
+
 async function recordPriceHistory(price) {
   if (!enabled) return;
   try {
@@ -138,4 +149,4 @@ async function loadGoldPrice() {
   }
 }
 
-module.exports = { enabled, init, saveOptIn, saveGoldPrice, loadGoldPrice, getSubscribers, recordPriceHistory, getPreviousPrice };
+module.exports = { enabled, init, saveOptIn, saveGoldPrice, loadGoldPrice, getSubscribers, getSubscribersDetailed, recordPriceHistory, getPreviousPrice };

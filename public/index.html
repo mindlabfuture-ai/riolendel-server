@@ -121,6 +121,24 @@
   footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;}
   footer a{text-decoration:underline;color:var(--text-dark-2);}
 
+  /* ---------- Chat widget ---------- */
+  .chat-fab{position:fixed;bottom:22px;right:22px;z-index:60;background:var(--gold-bright);color:#241D12;border:none;border-radius:50%;width:56px;height:56px;font-size:24px;cursor:pointer;box-shadow:0 4px 18px rgba(0,0,0,0.35);}
+  .chat-panel{position:fixed;bottom:90px;right:22px;z-index:60;width:340px;max-width:calc(100vw - 32px);height:440px;max-height:calc(100vh - 120px);background:var(--paper);border:1px solid #DDD3BC;border-radius:6px;display:none;flex-direction:column;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,0.35);}
+  .chat-panel.open{display:flex;}
+  .chat-head{background:var(--ink);color:var(--text-dark-1);padding:12px 16px;font-size:14px;display:flex;justify-content:space-between;align-items:center;}
+  .chat-head b{color:var(--gold-bright);}
+  .chat-close{background:none;border:none;color:var(--text-dark-2);font-size:18px;cursor:pointer;}
+  .chat-body{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;}
+  .chat-msg{max-width:85%;padding:9px 12px;border-radius:6px;font-size:13.5px;line-height:1.45;}
+  .chat-msg.user{align-self:flex-end;background:var(--gold-bright);color:#241D12;}
+  .chat-msg.bot{align-self:flex-start;background:#EFE7D4;color:var(--ink-text);}
+  .chat-msg.typing{color:var(--ink-muted);font-style:italic;background:transparent;padding:2px 4px;}
+  .chat-input-row{display:flex;border-top:1px solid #DDD3BC;background:var(--paper);}
+  .chat-input-row input{flex:1;border:none;padding:12px 14px;font-family:'Inter',sans-serif;font-size:13.5px;background:transparent;color:var(--ink-text);}
+  .chat-input-row input:focus{outline:none;}
+  .chat-input-row button{border:none;background:var(--gold-bright);color:#241D12;padding:0 18px;font-weight:600;cursor:pointer;font-size:13.5px;}
+  .chat-disclaimer{font-size:10.5px;color:#8A806C;padding:6px 14px 10px;background:var(--paper);}
+
   @media(max-width:760px){
     .compare{grid-template-columns:1fr;}
     .explainer{grid-template-columns:1fr;}
@@ -347,12 +365,85 @@
   </div>
 </section>
 
+<button class="chat-fab" id="chat-fab" aria-label="Open chat">💬</button>
+<div class="chat-panel" id="chat-panel">
+  <div class="chat-head"><span>Ask about <b>gold</b> — anything</span><button class="chat-close" id="chat-close" aria-label="Close chat">✕</button></div>
+  <div class="chat-body" id="chat-body">
+    <div class="chat-msg bot">Hi! Magtanong ka lang about gold — physical, digital, jewelry care, presyo. I'm here to explain, hindi magbenta. 🙂</div>
+  </div>
+  <div class="chat-input-row">
+    <input type="text" id="chat-input" placeholder="Type your question…" maxlength="1000">
+    <button id="chat-send">Send</button>
+  </div>
+  <div class="chat-disclaimer">AI assistant for education only — not financial advice. Don't share personal or financial details here.</div>
+</div>
+
 <footer>
   <div class="wrap">
     <div>riolendel.com — gold education, plain and simple.</div>
     <div>Not investment advice. Not a licensed investment adviser or solicitor. <a href="#">Privacy notice</a></div>
   </div>
 </footer>
+
+<script>
+(function(){
+  const fab = document.getElementById('chat-fab');
+  const panel = document.getElementById('chat-panel');
+  const closeBtn = document.getElementById('chat-close');
+  const body = document.getElementById('chat-body');
+  const input = document.getElementById('chat-input');
+  const sendBtn = document.getElementById('chat-send');
+  const history = [];
+
+  fab.addEventListener('click', () => { panel.classList.toggle('open'); if(panel.classList.contains('open')) input.focus(); });
+  closeBtn.addEventListener('click', () => panel.classList.remove('open'));
+
+  function addMsg(text, cls){
+    const div = document.createElement('div');
+    div.className = 'chat-msg ' + cls;
+    div.textContent = text;
+    body.appendChild(div);
+    body.scrollTop = body.scrollHeight;
+    return div;
+  }
+
+  async function send(){
+    const text = input.value.trim();
+    if(!text) return;
+    input.value = '';
+    addMsg(text, 'user');
+    history.push({ role: 'user', content: text });
+
+    const typing = addMsg('typing…', 'typing');
+    sendBtn.disabled = true;
+
+    try{
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: history.slice(-8) }),
+      });
+      const data = await res.json();
+      typing.remove();
+      if(data.ok && data.reply){
+        addMsg(data.reply, 'bot');
+        history.push({ role: 'assistant', content: data.reply });
+      } else {
+        addMsg(data.error || 'Something went wrong — try again.', 'bot');
+      }
+    }catch(e){
+      typing.remove();
+      addMsg('Connection problem — please try again.', 'bot');
+    }finally{
+      sendBtn.disabled = false;
+      input.focus();
+    }
+  }
+
+  sendBtn.addEventListener('click', send);
+  input.addEventListener('keydown', (e) => { if(e.key === 'Enter') send(); });
+})();
+</script>
 
 <script>
 (function(){

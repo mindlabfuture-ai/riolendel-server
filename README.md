@@ -115,3 +115,39 @@ caused it" would need either a paid news API or a person glancing at
 gold news before the alert goes out and adding a one-line cause. Worth
 doing manually at first rather than promising fully automatic
 news-linked alerts before that's really wired up.
+
+## AI chatbot (needs ANTHROPIC_API_KEY)
+
+A floating chat widget on the landing page answers gold questions via
+`/api/chat`, powered by Claude Haiku (`claude-haiku-4-5`, $1/$5 per
+million input/output tokens, pay-as-you-go). Setup: get a key at
+console.anthropic.com, add `ANTHROPIC_API_KEY` to Railway variables.
+
+Cost controls already built in: 20 messages/IP per 10 minutes, replies
+capped at 400 tokens, history capped at 8 messages, message length
+capped at 1,000 chars. Typical cost at low traffic: cents per day.
+Still, set a monthly spend limit in the Anthropic console as a backstop.
+
+Guardrails in the system prompt: education only, no investment advice,
+no platform recommendations, flags guaranteed-return claims as scam
+signals, never collects personal info in chat, PH/Taglish friendly.
+
+## Lead agent (scores + drafts, human review required)
+
+`GET /api/admin/lead-report?token=YOUR_ADMIN_TOKEN` returns every
+opted-in lead, scored and tiered (A/B/C), each with a personalized
+draft email written by Claude — sorted best-first, ready for your
+review. Add `&drafts=0` to skip AI drafting (free, instant, scoring
+only). Set `ADMIN_TOKEN` in Railway variables (any long random string).
+
+**Deliberate design choice:** the agent scores using only first-party
+signals — channel choice, email domain, signup recency — and does NOT
+web-research individual subscribers. Their consent covers receiving
+updates, not being profiled around the internet; researching them would
+exceed the consented purpose under the PH Data Privacy Act. First-party
+scoring gets you 90% of the prioritization value with none of the
+legal exposure.
+
+**Nothing is auto-sent.** The report is a review list. Copy the drafts
+you like into your email tool (or wire notify.js to a provider and add
+a send step once you've reviewed a few batches and trust the output).

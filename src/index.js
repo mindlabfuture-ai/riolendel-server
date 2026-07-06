@@ -7,6 +7,8 @@ const rateLimit = require('express-rate-limit');
 
 const db = require('./db');
 const goldPrice = require('./goldPrice');
+const chatbot = require('./chat');
+const leadAgent = require('./leadAgent');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -57,6 +59,45 @@ app.post('/api/optin', optinLimiter, async (req, res) => {
 });
 
 app.get('/healthz', (req, res) => res.json({ ok: true }));
+
+// ---------- AI chat ----------
+// Rate limit protects your Anthropic API budget from abuse: 20 messages
+// per IP per 10 minutes is plenty for a real visitor, useless for a bot.
+const chatLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { ok: false, error: 'Slow down a little \u2014 try again in a few minutes.' },
+});
+
+app.post('/api/chat', chatLimiter, async (req, res) => {
+  const { messages } = req.body || {};
+  const result = await chatbot.chat(messages);
+  res.status(result.ok ? 200 : 400).json(result);
+});
+
+// ---------- Lead agent (admin only) ----------
+// Protected by ADMIN_TOKEN env var. Call it like:
+//   GET /api/admin/lead-report?token=YOUR_TOKEN
+//   GET /api/admin/lead-report?token=YOUR_TOKEN&drafts=0   (skip AI drafting, faster/free)
+app.get('/api/admin/lead-report', async (req, res) => {
+  const adminToken = process.env.ADMIN_TOKEN;
+  if (!adminToken) {
+    return res.status(503).json({ ok: false, error: 'ADMIN_TOKEN is not configured on the server.' });
+  }
+  if (req.query.token !== adminToken) {
+    return res.status(401).json({ ok: false, error: 'Unauthorized.' });
+  }
+  const withDrafts = req.query.drafts !== '0';
+  try {
+    const report = await leadAgent.buildLeadReport({ withDrafts });
+    res.json({ ok: true, ...report });
+  } catch (err) {
+    console.error('[admin] Lead report failed:', err.message);
+    res.status(500).json({ ok: false, error: 'Report generation failed \u2014 check server logs.' });
+  }
+});
 
 async function start() {
   await db.init();
