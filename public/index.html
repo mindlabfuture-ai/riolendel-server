@@ -94,6 +94,18 @@
   .channel-choice label{display:flex;align-items:center;gap:6px;cursor:pointer;}
 
   .chart-card{background:var(--paper);border:1px solid #E4DAC2;padding:32px;margin-top:8px;}
+
+  .calc-card{background:var(--parchment);border:1px solid #DDD3BC;padding:36px;}
+  .calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;}
+  .calc-label{display:block;font-size:12px;text-transform:uppercase;letter-spacing:0.08em;color:#8A806C;margin-bottom:8px;font-family:'IBM Plex Mono',monospace;}
+  .calc-inputs input,.calc-inputs select{width:100%;padding:13px 14px;border:1px solid #C9BBA0;background:var(--paper);border-radius:2px;font-family:'Inter',sans-serif;font-size:15px;color:var(--ink-text);}
+  .calc-inputs input:focus,.calc-inputs select:focus{outline:2px solid var(--gold);outline-offset:1px;}
+  .calc-result{background:var(--ink);padding:30px;border-radius:2px;text-align:center;}
+  .calc-result-label{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dark-2);}
+  .calc-result-value{font-family:'Fraunces',serif;font-size:clamp(30px,4vw,42px);color:var(--gold-bright);margin-top:10px;line-height:1.1;}
+  .calc-result-sub{font-size:12.5px;color:var(--text-dark-2);margin-top:10px;}
+  .calc-note{margin-top:24px;font-size:13px;color:var(--ink-muted);line-height:1.6;}
+  .calc-note b{color:var(--ink-text);}
   .chart-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;}
   .chart-inner{min-width:560px;height:280px;}
   .chart-swipe-hint{display:none;font-size:12px;color:var(--gold-dim);margin-top:10px;font-family:'IBM Plex Mono',monospace;}
@@ -149,6 +161,8 @@
     .nav .eyebrow{font-size:10px;letter-spacing:0.08em;width:100%;}
     .logo-img{height:30px;}
     .chart-card{padding:20px 14px;}
+    .calc-card{padding:22px 16px;}
+    .calc-grid{grid-template-columns:1fr;gap:24px;}
     .chart-inner{height:200px;}
     .chart-swipe-hint{display:block;}
   }
@@ -304,6 +318,38 @@
   </div>
 </section>
 
+<section id="calculator">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">Try it yourself</div>
+      <h2>What's your gold worth today?</h2>
+      <p>Enter the weight and karat of any piece — the calculator uses today's live gold price to estimate its melt value in pesos.</p>
+    </div>
+    <div class="calc-card">
+      <div class="calc-grid">
+        <div class="calc-inputs">
+          <label class="calc-label" for="calc-grams">Weight in grams</label>
+          <input type="number" id="calc-grams" min="0" step="0.1" placeholder="e.g. 3.5" inputmode="decimal">
+          <label class="calc-label" for="calc-karat" style="margin-top:18px;">Karat</label>
+          <select id="calc-karat">
+            <option value="0.999">24K — pure gold (99.9%)</option>
+            <option value="0.916">22K — 91.6% gold</option>
+            <option value="0.75" selected>18K — 75% gold (most PH jewelry)</option>
+            <option value="0.585">14K — 58.5% gold</option>
+            <option value="0.417">10K — 41.7% gold</option>
+          </select>
+        </div>
+        <div class="calc-result">
+          <div class="calc-result-label">Estimated melt value</div>
+          <div class="calc-result-value" id="calc-value">₱0</div>
+          <div class="calc-result-sub" id="calc-sub">Enter a weight to see the estimate</div>
+        </div>
+      </div>
+      <p class="calc-note"><b>What this number is — and isn't:</b> this is the indicative value of the gold content itself (melt value) at today's spot price and an approximate exchange rate. It is not a buy or sell quote. Jewelry resale offers are typically at or below melt value, while buying new jewelry costs more due to craftsmanship. Actual prices vary by buyer, purity testing, and the day's rate.</p>
+    </div>
+  </div>
+</section>
+
 <section class="trust">
   <div class="wrap">
     <div class="section-head" style="max-width:640px;">
@@ -387,6 +433,47 @@
     <div>Not investment advice. Not a licensed investment adviser or solicitor. <a href="#">Privacy notice</a></div>
   </div>
 </footer>
+
+<script>
+(function(){
+  // Gold value calculator — uses the same server-cached live price the
+  // ticker uses (one cheap same-origin call; GoldAPI is never hit per-visitor).
+  const FX = 58.5;
+  const GRAMS_PER_OZ = 31.1035;
+  const gramsEl = document.getElementById('calc-grams');
+  const karatEl = document.getElementById('calc-karat');
+  const valueEl = document.getElementById('calc-value');
+  const subEl = document.getElementById('calc-sub');
+
+  let spotUsd = 4500;   // fallback if live price unavailable
+  let live = false;
+
+  fetch('/api/gold-price', { cache: 'no-store' })
+    .then(r => r.json())
+    .then(d => { if (d && d.price) { spotUsd = d.price; live = true; recalc(); } })
+    .catch(() => {});
+
+  function recalc(){
+    const grams = parseFloat(gramsEl.value);
+    const purity = parseFloat(karatEl.value);
+    if (!grams || grams <= 0){
+      valueEl.textContent = '₱0';
+      subEl.textContent = 'Enter a weight to see the estimate';
+      return;
+    }
+    const perGram24k = (spotUsd / GRAMS_PER_OZ) * FX;
+    const value = grams * purity * perGram24k;
+    valueEl.textContent = '₱' + Math.round(value).toLocaleString('en-PH');
+    const karatLabel = karatEl.options[karatEl.selectedIndex].text.split(' ')[0];
+    subEl.textContent = grams + 'g of ' + karatLabel + ' at ' +
+      (live ? 'today\u2019s live price' : 'a sample price') +
+      ' (\u2248\u20b1' + Math.round(purity * perGram24k).toLocaleString('en-PH') + '/g)';
+  }
+
+  gramsEl.addEventListener('input', recalc);
+  karatEl.addEventListener('change', recalc);
+})();
+</script>
 
 <script>
 (function(){
