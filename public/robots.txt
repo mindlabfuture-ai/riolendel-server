@@ -1,0 +1,49 @@
+# Riolendel — robots.txt
+# Standard search engines
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+# AI crawlers used for training and/or live answer retrieval.
+# Explicitly allowed on purpose: Google's own Gary Illyes and John Mueller
+# have said Google does not use llms.txt as a ranking signal, and the same
+# applies to most of these bots — being crawlable at all is what matters,
+# not a special file. See llms.txt for a clean content summary regardless.
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin
+
+Sitemap: https://riolendel.com/sitemap.xml

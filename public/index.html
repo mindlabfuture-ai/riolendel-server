@@ -4,6 +4,78 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Riolendel — Gold, Understood</title>
+<meta name="description" content="Plain-language gold education for Filipinos: how to buy physical or digital gold safely, care for gold jewelry, live PHP gold prices, and a free calculator to check what your gold is worth today.">
+<link rel="canonical" href="https://riolendel.com/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Riolendel — Gold, Understood">
+<meta property="og:description" content="Plain-language gold education for Filipinos: physical vs. digital gold, jewelry care, live PHP prices, and a free gold value calculator.">
+<meta property="og:url" content="https://riolendel.com/">
+<meta property="og:site_name" content="Riolendel">
+<meta property="og:locale" content="en_PH">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Riolendel — Gold, Understood">
+<meta name="twitter:description" content="Plain-language gold education for Filipinos: physical vs. digital gold, jewelry care, live PHP prices, and a free gold value calculator.">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://riolendel.com/#organization",
+      "name": "Riolendel",
+      "url": "https://riolendel.com/",
+      "logo": "https://riolendel.com/assets/logo-nav.png",
+      "description": "Gold education for Filipino consumers — physical and digital gold, jewelry care, and live PHP gold prices.",
+      "areaServed": "PH"
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://riolendel.com/#website",
+      "url": "https://riolendel.com/",
+      "name": "Riolendel",
+      "publisher": { "@id": "https://riolendel.com/#organization" },
+      "inLanguage": "en-PH"
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Is digital gold better than physical gold?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "It's not a competition — they serve different purposes. Physical gold carries family meaning and you hold it yourself; digital gold is flexible and quick to convert. Many Filipino households hold both rather than choosing just one."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I know if a gold investment platform is a scam?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The clearest warning sign is a promise of a fixed or guaranteed return — real gold prices move up and down, so nothing about holding gold is guaranteed. Also verify the platform is backed by real, audited bullion and check its SEC/BSP registration before funding an account."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How much is my gold jewelry worth in pesos today?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "You can estimate the melt value of any piece using Riolendel's free gold value calculator, based on its weight in grams, karat, and the live gold price. Actual resale offers from buyers are typically at or below this melt value."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What karat is most Philippine gold jewelry?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Most gold jewelry sold in the Philippines is 18K (75% pure gold), though 21K, 22K, and 24K pieces are also common, especially for bars and coins."
+          }
+        }
+      ]
+    }
+  ]
+}
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
@@ -96,6 +168,14 @@
   .chart-card{background:var(--paper);border:1px solid #E4DAC2;padding:32px;margin-top:8px;}
 
   .calc-card{background:var(--parchment);border:1px solid #DDD3BC;padding:36px;}
+
+  .faq-list{display:flex;flex-direction:column;gap:1px;background:#DDD3BC;border:1px solid #DDD3BC;}
+  .faq-item{background:var(--paper);padding:20px 24px;}
+  .faq-item summary{cursor:pointer;font-family:'Fraunces',serif;font-size:16.5px;color:var(--ink-text);list-style:none;position:relative;padding-right:24px;}
+  .faq-item summary::-webkit-details-marker{display:none;}
+  .faq-item summary::after{content:"+";position:absolute;right:0;top:0;color:var(--gold);font-size:18px;}
+  .faq-item[open] summary::after{content:"\2212";}
+  .faq-item p{margin:14px 0 0;font-size:14.5px;color:var(--ink-muted);}
   .calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;}
   .calc-label{display:block;font-size:12px;text-transform:uppercase;letter-spacing:0.08em;color:#8A806C;margin-bottom:8px;font-family:'IBM Plex Mono',monospace;}
   .calc-inputs input,.calc-inputs select{width:100%;padding:13px 14px;border:1px solid #C9BBA0;background:var(--paper);border-radius:2px;font-family:'Inter',sans-serif;font-size:15px;color:var(--ink-text);}
@@ -427,6 +507,33 @@
     </div>
   </div>
 </section>
+<section id="faq">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">Common questions</div>
+      <h2>Frequently asked questions</h2>
+    </div>
+    <div class="faq-list">
+      <details class="faq-item">
+        <summary>Is digital gold better than physical gold?</summary>
+        <p>It's not a competition — they serve different purposes. Physical gold carries family meaning and you hold it yourself; digital gold is flexible and quick to convert. Many Filipino households hold both rather than choosing just one.</p>
+      </details>
+      <details class="faq-item">
+        <summary>How do I know if a gold investment platform is a scam?</summary>
+        <p>The clearest warning sign is a promise of a fixed or guaranteed return — real gold prices move up and down, so nothing about holding gold is guaranteed. Also verify the platform is backed by real, audited bullion and check its SEC/BSP registration before funding an account.</p>
+      </details>
+      <details class="faq-item">
+        <summary>How much is my gold jewelry worth in pesos today?</summary>
+        <p>Use the free gold value calculator above — enter the weight in grams and karat of any piece to estimate its melt value at today's live gold price. Actual resale offers from buyers are typically at or below this melt value.</p>
+      </details>
+      <details class="faq-item">
+        <summary>What karat is most Philippine gold jewelry?</summary>
+        <p>Most gold jewelry sold in the Philippines is 18K (75% pure gold), though 21K, 22K, and 24K pieces are also common, especially for bars and coins.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
 <section id="optin">
   <div class="wrap">
     <div class="optin">
