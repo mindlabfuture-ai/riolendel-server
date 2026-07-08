@@ -216,6 +216,108 @@
   </div>
 </header>
 
+<section id="history">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">A decade in perspective</div>
+      <h2>Gold hasn't just held its value — it's climbed</h2>
+      <p>Year-end spot price in USD per troy ounce, the global benchmark. Approximate figures for illustration — always check the live price above for today's actual rate.</p>
+    </div>
+    <div class="chart-card">
+      <div class="chart-scroll">
+        <div class="chart-inner"><canvas id="gold-history-chart"></canvas></div>
+      </div>
+      <p class="chart-swipe-hint">Swipe to see all years &rarr;</p>
+      <p class="chart-note">Sources: LBMA-linked market reporting (JM Bullion, USAGOLD, Statista). Figures are rounded year-end approximations, not exact fixings.</p>
+    </div>
+  </div>
+</section>
+<section id="calculator">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">Try it yourself</div>
+      <h2>What's your gold worth today?</h2>
+      <p>Enter the weight and karat of any piece — the calculator uses today's live gold price to estimate its melt value in pesos.</p>
+    </div>
+    <div class="calc-card">
+      <div class="calc-grid">
+        <div class="calc-inputs">
+          <label class="calc-label" for="calc-grams">Weight in grams</label>
+          <input type="number" id="calc-grams" min="0" step="0.1" placeholder="e.g. 3.5" inputmode="decimal">
+          <label class="calc-label" for="calc-karat" style="margin-top:18px;">Karat</label>
+          <select id="calc-karat">
+            <option value="0.999">24K — pure gold (99.9%)</option>
+            <option value="0.916">22K — 91.6% gold</option>
+            <option value="0.75" selected>18K — 75% gold (most PH jewelry)</option>
+            <option value="0.585">14K — 58.5% gold</option>
+            <option value="0.417">10K — 41.7% gold</option>
+          </select>
+        </div>
+        <div class="calc-result">
+          <div class="calc-result-label">Estimated melt value</div>
+          <div class="calc-result-value" id="calc-value">₱0</div>
+          <div class="calc-result-sub" id="calc-sub">Enter a weight to see the estimate</div>
+        </div>
+      </div>
+      <p class="calc-note"><b>What this number is — and isn't:</b> this is the indicative value of the gold content itself (melt value) at today's spot price and an approximate exchange rate. It is not a buy or sell quote. Jewelry resale offers are typically at or below melt value, while buying new jewelry costs more due to craftsmanship. Actual prices vary by buyer, purity testing, and the day's rate.</p>
+    </div>
+  </div>
+</section>
+<section id="jewelry-care">
+  <div class="wrap explainer">
+    <div>
+      <div class="section-head" style="margin-bottom:28px;">
+        <div class="eyebrow">Step by step</div>
+        <h2>Take care of the gold you already own</h2>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-mark">01</div>
+          <div class="step-body">
+            <h4>Clean it gently</h4>
+            <p>Warm water, a drop of mild soap, and a soft-bristle brush is all you need. Dry immediately with a soft, lint-free cloth — don't let pieces air-dry with soap residue still on them.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-mark">02</div>
+          <div class="step-body">
+            <h4>Store pieces separately</h4>
+            <p>Soft pouches or a lined box keep pieces from scratching each other. Gold is softer than most metals people expect — tossing pieces in one drawer together causes more damage than most accidents do.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-mark">03</div>
+          <div class="step-body">
+            <h4>Take it off before...</h4>
+            <p>Swimming, showering, exercising, or cleaning the house. Chlorine and many household chemicals weaken gold alloys over repeated exposure — this is the single most common cause of long-term damage.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-mark">04</div>
+          <div class="step-body">
+            <h4>Document it while things are calm</h4>
+            <p>Photograph each piece and keep receipts or appraisals together, separate from the jewelry itself. This matters far more than people expect — for insurance, resale, and passing pieces down.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-mark">05</div>
+          <div class="step-body">
+            <h4>If you ever decide to sell</h4>
+            <p>Get two or three quotes before accepting one. Resale value usually reflects melt/scrap value — the craftsmanship you originally paid for is rarely recovered. Our calculator above gives you a starting reference point.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="side-card">
+      <div class="eyebrow">Quick reference</div>
+      <h3>Do this, not that</h3>
+      <p><b style="color:#8FCB7C;">Do:</b> mild soap, soft brush, lint-free cloth, separate storage.<br><br>
+      <b style="color:#E08A7D;">Avoid:</b> chlorine/bleach, ultrasonic cleaners on gemstone pieces, abrasive scrubbing on high-karat gold, wearing during swimming or exercise.</p>
+      <p style="margin-top:16px;color:var(--gold-bright);font-family:'Inter',sans-serif;font-size:13px;">Most damage isn't an accident — it's a habit nobody thought twice about.</p>
+    </div>
+  </div>
+</section>
+
 <section id="learn">
   <div class="wrap">
     <div class="section-head">
@@ -227,7 +329,7 @@
   <div class="wrap">
     <div class="compare">
       <div class="compare-col">
-        <img src="https://images.unsplash.com/photo-1650453943832-dc4d8e26acd5?w=900&q=70&auto=format&fit=crop" alt="Gold necklace, close up" style="width:100%;height:180px;object-fit:cover;border-radius:2px;margin-bottom:20px;">
+        <img src="https://images.unsplash.com/photo-1758995115867-4ef47c98824e?w=900&q=70&auto=format&fit=crop" alt="Jewelry store display case with gold necklaces and earrings" style="width:100%;height:180px;object-fit:cover;border-radius:2px;margin-bottom:20px;">
         <h3>Physical gold — jewelry & bars</h3>
         <ul class="compare-list">
           <li>You can wear it, gift it, and pass it down — it carries family meaning</li>
@@ -238,7 +340,7 @@
         </ul>
       </div>
       <div class="compare-col dark">
-        <img src="https://images.unsplash.com/photo-1718752773168-a44aa1601ddd?w=900&q=70&auto=format&fit=crop" alt="Stacked gold bullion bars representing vaulted reserves" style="width:100%;height:180px;object-fit:cover;border-radius:2px;margin-bottom:20px;">
+        <img src="https://images.unsplash.com/photo-1671459923834-47a0b8ed93f5?w=900&q=70&auto=format&fit=crop" alt="A person checking a live price chart on a mobile phone, representing digital gold apps" style="width:100%;height:180px;object-fit:cover;border-radius:2px;margin-bottom:20px;">
         <h3>Digital gold — apps like GCash, Maya</h3>
         <ul class="compare-list">
           <li>Buy or sell in small pesos, any hour, from your phone</li>
@@ -251,7 +353,6 @@
     </div>
   </div>
 </section>
-
 <section>
   <div class="wrap explainer">
     <div>
@@ -300,56 +401,6 @@
     </div>
   </div>
 </section>
-
-<section id="history">
-  <div class="wrap">
-    <div class="section-head">
-      <div class="eyebrow">A decade in perspective</div>
-      <h2>Gold hasn't just held its value — it's climbed</h2>
-      <p>Year-end spot price in USD per troy ounce, the global benchmark. Approximate figures for illustration — always check the live price above for today's actual rate.</p>
-    </div>
-    <div class="chart-card">
-      <div class="chart-scroll">
-        <div class="chart-inner"><canvas id="gold-history-chart"></canvas></div>
-      </div>
-      <p class="chart-swipe-hint">Swipe to see all years &rarr;</p>
-      <p class="chart-note">Sources: LBMA-linked market reporting (JM Bullion, USAGOLD, Statista). Figures are rounded year-end approximations, not exact fixings.</p>
-    </div>
-  </div>
-</section>
-
-<section id="calculator">
-  <div class="wrap">
-    <div class="section-head">
-      <div class="eyebrow">Try it yourself</div>
-      <h2>What's your gold worth today?</h2>
-      <p>Enter the weight and karat of any piece — the calculator uses today's live gold price to estimate its melt value in pesos.</p>
-    </div>
-    <div class="calc-card">
-      <div class="calc-grid">
-        <div class="calc-inputs">
-          <label class="calc-label" for="calc-grams">Weight in grams</label>
-          <input type="number" id="calc-grams" min="0" step="0.1" placeholder="e.g. 3.5" inputmode="decimal">
-          <label class="calc-label" for="calc-karat" style="margin-top:18px;">Karat</label>
-          <select id="calc-karat">
-            <option value="0.999">24K — pure gold (99.9%)</option>
-            <option value="0.916">22K — 91.6% gold</option>
-            <option value="0.75" selected>18K — 75% gold (most PH jewelry)</option>
-            <option value="0.585">14K — 58.5% gold</option>
-            <option value="0.417">10K — 41.7% gold</option>
-          </select>
-        </div>
-        <div class="calc-result">
-          <div class="calc-result-label">Estimated melt value</div>
-          <div class="calc-result-value" id="calc-value">₱0</div>
-          <div class="calc-result-sub" id="calc-sub">Enter a weight to see the estimate</div>
-        </div>
-      </div>
-      <p class="calc-note"><b>What this number is — and isn't:</b> this is the indicative value of the gold content itself (melt value) at today's spot price and an approximate exchange rate. It is not a buy or sell quote. Jewelry resale offers are typically at or below melt value, while buying new jewelry costs more due to craftsmanship. Actual prices vary by buyer, purity testing, and the day's rate.</p>
-    </div>
-  </div>
-</section>
-
 <section class="trust">
   <div class="wrap">
     <div class="section-head" style="max-width:640px;">
@@ -376,7 +427,6 @@
     </div>
   </div>
 </section>
-
 <section id="optin">
   <div class="wrap">
     <div class="optin">
