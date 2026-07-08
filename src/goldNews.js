@@ -40,7 +40,11 @@ async function fetchFromCurrentsApi() {
   }
 
   try {
-    const url = 'https://api.currentsapi.services/v1/search?keywords=gold&language=en&page_size=20';
+    // Use a boolean phrase query (not a bare "gold" keyword) so unrelated
+    // results don't slip through just for containing the word "gold" —
+    // e.g. arts/entertainment articles about "golden age" or brand names.
+    const query = '("gold price" OR "gold prices" OR "gold market" OR bullion OR "gold reserves" OR "spot gold" OR "gold demand")';
+    const url = `https://api.currentsapi.services/v1/search?query=${encodeURIComponent(query)}&language=en&page_size=20`;
     const res = await fetch(url, { headers: { Authorization: apiKey } });
     if (!res.ok) {
       const errText = await res.text();
