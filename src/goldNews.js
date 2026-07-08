@@ -40,7 +40,7 @@ async function fetchFromCurrentsApi() {
   }
 
   try {
-    const url = 'https://api.currentsapi.services/v1/search?keywords=gold&language=en&page_size=60';
+    const url = 'https://api.currentsapi.services/v1/search?keywords=gold&language=en&page_size=20';
     const res = await fetch(url, { headers: { Authorization: apiKey } });
     if (!res.ok) {
       const errText = await res.text();
