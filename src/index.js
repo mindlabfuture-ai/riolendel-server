@@ -7,8 +7,10 @@ const rateLimit = require('express-rate-limit');
 
 const db = require('./db');
 const goldPrice = require('./goldPrice');
+const goldNews = require('./goldNews');
 const chatbot = require('./chat');
 const leadAgent = require('./leadAgent');
+const { generateRssXml } = require('./rss');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -36,6 +38,10 @@ app.get('/api/gold-price', (req, res) => {
   res.json(cached);
 });
 
+app.get('/api/gold-news', (req, res) => {
+  res.json(goldNews.getCached());
+});
+
 app.post('/api/optin', optinLimiter, async (req, res) => {
   const { name, email, phone, consent, channel } = req.body || {};
 
@@ -59,6 +65,10 @@ app.post('/api/optin', optinLimiter, async (req, res) => {
 });
 
 app.get('/healthz', (req, res) => res.json({ ok: true }));
+
+app.get('/rss.xml', (req, res) => {
+  res.type('application/rss+xml').send(generateRssXml());
+});
 
 // ---------- AI chat ----------
 // Rate limit protects your Anthropic API budget from abuse: 20 messages
@@ -102,6 +112,7 @@ app.get('/api/admin/lead-report', async (req, res) => {
 async function start() {
   await db.init();
   await goldPrice.init();
+  await goldNews.init();
   app.listen(PORT, () => console.log(`[server] Listening on port ${PORT}`));
 }
 

@@ -7,7 +7,7 @@
 <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32">
 <link rel="icon" href="/favicon-192.png" type="image/png" sizes="192x192">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<title>Riolendel — Gold, Understood</title>
+<link rel="alternate" type="application/rss+xml" title="Riolendel Stories" href="/rss.xml">
 <meta name="description" content="Plain-language gold education for Filipinos: how to buy physical or digital gold safely, care for gold jewelry, live PHP gold prices, and a free calculator to check what your gold is worth today.">
 <link rel="canonical" href="https://riolendel.com/">
 <meta property="og:type" content="website">
@@ -173,6 +173,15 @@
 
   .calc-card{background:var(--parchment);border:1px solid #DDD3BC;padding:36px;}
 
+  .news-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#E4DAC2;border:1px solid #E4DAC2;}
+  .news-card{background:var(--paper);padding:24px;text-decoration:none;color:inherit;display:flex;flex-direction:column;}
+  .news-card:hover{background:#F3EDE0;}
+  .news-source{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:0.06em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:10px;}
+  .news-card h4{font-family:'Fraunces',serif;font-size:15.5px;line-height:1.35;color:var(--ink-text);margin:0 0 10px;font-weight:500;}
+  .news-card p{font-size:13px;color:var(--ink-muted);margin:0;flex:1;}
+  .news-date{font-size:11px;color:#8A806C;margin-top:14px;}
+  .news-loading,.news-empty{grid-column:1/-1;padding:40px;text-align:center;color:var(--ink-muted);font-size:14px;background:var(--paper);}
+
   .faq-list{display:flex;flex-direction:column;gap:1px;background:#DDD3BC;border:1px solid #DDD3BC;}
   .faq-item{background:var(--paper);padding:20px 24px;}
   .faq-item summary{cursor:pointer;font-family:'Fraunces',serif;font-size:16.5px;color:var(--ink-text);list-style:none;position:relative;padding-right:24px;}
@@ -246,6 +255,7 @@
     .logo-img{height:30px;}
     .chart-card{padding:20px 14px;}
     .calc-card{padding:22px 16px;}
+    .news-grid{grid-template-columns:1fr;}
     .calc-grid{grid-template-columns:1fr;gap:24px;}
     .chart-inner{height:200px;}
     .chart-swipe-hint{display:block;}
@@ -347,6 +357,20 @@
     </div>
   </div>
 </section>
+
+<section id="gold-news">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">In the headlines</div>
+      <h2>What's moving gold right now</h2>
+      <p>Curated from reputable financial outlets — Reuters, Bloomberg, CNBC, and similar sources only. Updated once a day.</p>
+    </div>
+    <div class="news-grid" id="news-grid">
+      <p class="news-loading">Loading today's headlines&hellip;</p>
+    </div>
+  </div>
+</section>
+
 <section id="jewelry-care">
   <div class="wrap explainer">
     <div>
@@ -594,6 +618,50 @@
     <div>Not investment advice. Not a licensed investment adviser or solicitor. <a href="#">Privacy notice</a></div>
   </div>
 </footer>
+
+<script>
+(function(){
+  // Reads the server-cached, once-daily-fetched news list — never calls
+  // Currents API directly from the browser.
+  const grid = document.getElementById('news-grid');
+
+  function timeAgo(iso){
+    if(!iso) return '';
+    const d = new Date(iso);
+    const days = Math.floor((Date.now() - d.getTime()) / 86400000);
+    if(days <= 0) return 'Today';
+    if(days === 1) return 'Yesterday';
+    return days + ' days ago';
+  }
+
+  function esc(str){
+    const div = document.createElement('div');
+    div.textContent = str || '';
+    return div.innerHTML;
+  }
+
+  fetch('/api/gold-news', { cache: 'no-store' })
+    .then(r => r.json())
+    .then(data => {
+      const articles = (data && data.articles) || [];
+      if(articles.length === 0){
+        grid.innerHTML = '<p class="news-empty">No headlines cached yet — check back soon.</p>';
+        return;
+      }
+      grid.innerHTML = articles.map(a => `
+        <a class="news-card" href="${esc(a.url)}" target="_blank" rel="noopener noreferrer">
+          <div class="news-source">${esc(a.domain) || 'Source'}</div>
+          <h4>${esc(a.title)}</h4>
+          <p>${esc(a.description)}</p>
+          <div class="news-date">${esc(timeAgo(a.published))}</div>
+        </a>
+      `).join('');
+    })
+    .catch(() => {
+      grid.innerHTML = '<p class="news-empty">Headlines are temporarily unavailable.</p>';
+    });
+})();
+</script>
 
 <script>
 (function(){

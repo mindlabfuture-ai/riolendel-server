@@ -54,6 +54,17 @@ async function init() {
     );
   `);
 
+  // Caches gold-related headlines fetched once or twice a day from
+  // Currents API — never fetched per-visitor. See src/goldNews.js.
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS gold_news_cache (
+      id INT PRIMARY KEY DEFAULT 1,
+      articles JSONB,
+      fetched_at TIMESTAMPTZ,
+      CONSTRAINT single_row_news CHECK (id = 1)
+    );
+  `);
+
   console.log('[db] Connected and tables ready.');
 }
 
@@ -119,6 +130,32 @@ async function getPreviousPrice() {
   }
 }
 
+async function saveNewsCache(articles) {
+  if (!enabled) return;
+  try {
+    await pool.query(
+      `INSERT INTO gold_news_cache (id, articles, fetched_at)
+       VALUES (1, $1, now())
+       ON CONFLICT (id) DO UPDATE SET articles = $1, fetched_at = now()`,
+      [JSON.stringify(articles)]
+    );
+  } catch (err) {
+    console.error('[db] Failed to save news cache:', err.message);
+  }
+}
+
+async function loadNewsCache() {
+  if (!enabled) return null;
+  try {
+    const res = await pool.query('SELECT articles, fetched_at FROM gold_news_cache WHERE id = 1');
+    if (res.rows.length === 0) return null;
+    return { articles: res.rows[0].articles, fetchedAt: res.rows[0].fetched_at };
+  } catch (err) {
+    console.error('[db] Failed to load news cache:', err.message);
+    return null;
+  }
+}
+
 async function saveGoldPrice({ price, changePct }) {
   if (!enabled) return;
   try {
@@ -149,4 +186,4 @@ async function loadGoldPrice() {
   }
 }
 
-module.exports = { enabled, init, saveOptIn, saveGoldPrice, loadGoldPrice, getSubscribers, getSubscribersDetailed, recordPriceHistory, getPreviousPrice };
+module.exports = { enabled, init, saveOptIn, saveGoldPrice, loadGoldPrice, getSubscribers, getSubscribersDetailed, recordPriceHistory, getPreviousPrice, saveNewsCache, loadNewsCache };
