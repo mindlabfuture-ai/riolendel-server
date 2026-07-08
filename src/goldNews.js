@@ -34,16 +34,23 @@ function extractDomain(url) {
 async function fetchFromCurrentsApi() {
   const apiKey = process.env.CURRENTS_API_KEY;
   if (!apiKey) {
-    console.warn('[gold-news] CURRENTS_API_KEY not set — skipping fetch.');
-    return;
+    const msg = 'CURRENTS_API_KEY not set — skipping fetch.';
+    console.warn(`[gold-news] ${msg}`);
+    return { ok: false, reason: msg };
   }
 
   try {
-    const url = 'https://api.currentsapi.services/v1/search?keywords=gold&category=economy_business_finance&language=en&page_size=60';
+    const url = 'https://api.currentsapi.services/v1/search?keywords=gold&language=en&page_size=60';
     const res = await fetch(url, { headers: { Authorization: apiKey } });
-    if (!res.ok) throw new Error(`Currents API responded ${res.status}`);
+    if (!res.ok) {
+      const errText = await res.text();
+      throw new Error(`Currents API responded ${res.status}: ${errText.slice(0, 200)}`);
+    }
     const data = await res.json();
     const raw = Array.isArray(data.news) ? data.news : [];
+    const sampleDomains = raw.slice(0, 10).map(a => extractDomain(a.url));
+    console.log(`[gold-news] Raw results from Currents API: ${raw.length}`);
+    if (raw.length > 0) console.log('[gold-news] Sample domains in raw results:', sampleDomains.join(', '));
 
     const curated = raw
       .map(a => ({
@@ -57,17 +64,20 @@ async function fetchFromCurrentsApi() {
       .slice(0, 6);
 
     if (curated.length === 0) {
-      console.warn('[gold-news] Fetch succeeded but no articles matched the trusted-domain list — keeping previous cache.');
-      return;
+      const msg = `Currents API returned ${raw.length} raw articles, but none matched the trusted-domain list. Sample domains seen: ${sampleDomains.join(', ') || '(none)'}`;
+      console.warn(`[gold-news] ${msg} — keeping previous cache.`);
+      return { ok: false, reason: msg, rawCount: raw.length, sampleDomains };
     }
 
     cache = { articles: curated, fetchedAt: new Date().toISOString() };
     await db.saveNewsCache(curated);
     console.log(`[gold-news] Updated: ${curated.length} articles from trusted sources.`);
+    return { ok: true, rawCount: raw.length, curatedCount: curated.length };
   } catch (err) {
     console.error('[gold-news] Fetch failed, keeping last known articles:', err.message);
     // Deliberately does not clear the cache on failure — same principle
     // as goldPrice.js: a bad fetch should never wipe out good data.
+    return { ok: false, reason: err.message };
   }
 }
 

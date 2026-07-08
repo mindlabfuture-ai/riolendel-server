@@ -49,8 +49,8 @@ app.get('/api/admin/refresh-news', async (req, res) => {
   const adminToken = process.env.ADMIN_TOKEN;
   if (!adminToken) return res.status(503).json({ ok: false, error: 'ADMIN_TOKEN not configured.' });
   if (req.query.token !== adminToken) return res.status(401).json({ ok: false, error: 'Unauthorized.' });
-  await goldNews.fetchFromCurrentsApi();
-  res.json({ ok: true, cached: goldNews.getCached() });
+  const diagnostics = await goldNews.fetchFromCurrentsApi();
+  res.json({ diagnostics, cached: goldNews.getCached() });
 });
 
 app.post('/api/optin', optinLimiter, async (req, res) => {
