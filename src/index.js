@@ -42,6 +42,17 @@ app.get('/api/gold-news', (req, res) => {
   res.json(goldNews.getCached());
 });
 
+// GET /api/admin/refresh-news?token=YOUR_ADMIN_TOKEN
+// Forces an immediate re-fetch instead of waiting for the next cron run
+// — useful right after adding/changing CURRENTS_API_KEY.
+app.get('/api/admin/refresh-news', async (req, res) => {
+  const adminToken = process.env.ADMIN_TOKEN;
+  if (!adminToken) return res.status(503).json({ ok: false, error: 'ADMIN_TOKEN not configured.' });
+  if (req.query.token !== adminToken) return res.status(401).json({ ok: false, error: 'Unauthorized.' });
+  await goldNews.fetchFromCurrentsApi();
+  res.json({ ok: true, cached: goldNews.getCached() });
+});
+
 app.post('/api/optin', optinLimiter, async (req, res) => {
   const { name, email, phone, consent, channel } = req.body || {};
 

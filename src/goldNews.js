@@ -3,12 +3,22 @@ const db = require('./db');
 
 // Curated list of outlets we consider reputable enough to surface.
 // Currents API aggregates 14,000+ sources, including plenty of low-quality
-// ones — filtering by domain keeps this section credible.
+// ones — filtering by domain keeps this section credible. Kept broad on
+// purpose: a narrow list means an "empty results" day whenever none of a
+// handful of exact domains happen to cover gold that day.
 const TRUSTED_DOMAINS = new Set([
+  // Global financial/business press
   'reuters.com', 'bloomberg.com', 'marketwatch.com', 'cnbc.com',
   'forbes.com', 'apnews.com', 'wsj.com', 'ft.com', 'businessinsider.com',
   'investing.com', 'kitco.com', 'finance.yahoo.com', 'yahoo.com',
-  'theguardian.com', 'bbc.com', 'bbc.co.uk',
+  'theguardian.com', 'bbc.com', 'bbc.co.uk', 'cnn.com', 'npr.org',
+  'aljazeera.com', 'channelnewsasia.com', 'economist.com', 'barrons.com',
+  'nasdaq.com', 'fortune.com', 'axios.com', 'time.com',
+  // Philippine outlets — relevant to this audience, and often cover gold
+  // prices in a peso/BSP context that global outlets won't
+  'inquirer.net', 'rappler.com', 'philstar.com', 'mb.com.ph',
+  'bworldonline.com', 'gmanetwork.com', 'abs-cbn.com', 'pna.gov.ph',
+  'manilatimes.net', 'bilyonaryo.com',
 ]);
 
 let cache = { articles: [], fetchedAt: null };
@@ -29,7 +39,7 @@ async function fetchFromCurrentsApi() {
   }
 
   try {
-    const url = 'https://api.currentsapi.services/v1/search?keywords=gold%20price&language=en&page_size=30';
+    const url = 'https://api.currentsapi.services/v1/search?keywords=gold&category=economy_business_finance&language=en&page_size=60';
     const res = await fetch(url, { headers: { Authorization: apiKey } });
     if (!res.ok) throw new Error(`Currents API responded ${res.status}`);
     const data = await res.json();
