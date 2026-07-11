@@ -16,6 +16,23 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(helmet({ contentSecurityPolicy: false })); // CSP off by default since the page loads Google Fonts + hotlinked images; tighten this once your asset list is final
+
+// Force www.riolendel.com -> riolendel.com (and http -> https) with a
+// permanent redirect. This matters for two reasons: it stops Google from
+// treating www and non-www as separate/competing URLs (our canonical tags
+// already point to the non-www version), and if www was ever pointing at
+// old content, this guarantees it now serves the real site instead.
+app.use((req, res, next) => {
+  if (req.path === '/healthz') return next(); // never redirect Railway's own health checks
+  const host = req.headers.host || '';
+  const proto = req.headers['x-forwarded-proto'] || req.protocol;
+  if (host.startsWith('www.') || proto !== 'https') {
+    const cleanHost = host.replace(/^www\./, '');
+    return res.redirect(301, `https://${cleanHost}${req.originalUrl}`);
+  }
+  next();
+});
+
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
