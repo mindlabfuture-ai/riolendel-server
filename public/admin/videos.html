@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Video Scraper — Riolendel Admin</title>
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#13110E;
+    --surface:#1C1814;
+    --surface-2:#252019;
+    --border:#332D24;
+    --gold:#D9A94A;
+    --gold-dim:#8A6E2F;
+    --text:#E8DFCC;
+    --text-2:#9C9080;
+    --green:#7FBF6B;
+    --red:#E08A7D;
+    --shopee:#EE4D2D;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;line-height:1.5;}
+  .container{max-width:960px;margin:0 auto;padding:20px 24px;}
+
+  h1{font-size:22px;font-weight:600;margin:0;color:var(--gold);}
+  h2{font-size:16px;font-weight:600;margin:28px 0 14px;color:var(--text);}
+  .subtitle{color:var(--text-2);font-size:13px;margin-top:4px;}
+
+  /* Auth */
+  .auth-box{background:var(--surface);border:1px solid var(--border);padding:28px;max-width:400px;margin:80px auto;}
+  .auth-box h1{margin-bottom:16px;}
+  .auth-box input{width:100%;padding:10px 12px;background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:13px;margin-bottom:12px;}
+  .auth-box input:focus{outline:1px solid var(--gold);border-color:var(--gold);}
+
+  /* Buttons */
+  .btn{padding:8px 16px;border:none;cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.04em;font-weight:500;}
+  .btn-gold{background:var(--gold);color:#1C1814;}
+  .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text-2);}
+  .btn-ghost:hover{border-color:var(--gold-dim);color:var(--text);}
+  .btn-sm{padding:5px 10px;font-size:11px;}
+  .btn-green{background:var(--green);color:#1C1814;}
+  .btn-red{background:var(--red);color:#1C1814;}
+
+  /* Tabs */
+  .tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin:24px 0 0;}
+  .tab{padding:10px 20px;cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-2);background:none;border:none;border-bottom:2px solid transparent;}
+  .tab.active{color:var(--gold);border-bottom-color:var(--gold);}
+
+  /* Form */
+  .form-section{background:var(--surface);border:1px solid var(--border);padding:24px;margin-top:20px;}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:14px;}
+  .form-row.full{grid-template-columns:1fr;}
+  label{display:block;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-2);margin-bottom:6px;}
+  input,select,textarea{width:100%;padding:9px 12px;background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;}
+  input:focus,select:focus,textarea:focus{outline:1px solid var(--gold);border-color:var(--gold);}
+  textarea{resize:vertical;min-height:60px;font-family:'Inter',sans-serif;}
+  select{cursor:pointer;}
+
+  /* Table */
+  .table-wrap{overflow-x:auto;margin-top:16px;}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th{text-align:left;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-2);padding:10px 12px;border-bottom:1px solid var(--border);white-space:nowrap;}
+  td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top;}
+  tr:hover td{background:var(--surface);}
+  .status{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.04em;text-transform:uppercase;padding:3px 8px;display:inline-block;}
+  .status.draft{color:var(--text-2);background:var(--surface-2);}
+  .status.queued{color:var(--blue, #6BA3BF);background:rgba(107,163,191,0.12);}
+  .status.published{color:var(--green);background:rgba(127,191,107,0.1);}
+  .status.archived{color:var(--red);background:rgba(224,138,125,0.1);}
+  .truncate{max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .actions{display:flex;gap:6px;flex-wrap:wrap;}
+
+  /* Toast */
+  .toast{position:fixed;top:20px;right:20px;background:var(--surface);border:1px solid var(--gold);color:var(--text);padding:12px 20px;font-size:13px;z-index:100;display:none;}
+  .toast.error{border-color:var(--red);}
+
+  .hidden{display:none;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  .help{font-size:12px;color:var(--text-2);margin-top:4px;}
+
+  @media(max-width:640px){
+    .form-row{grid-template-columns:1fr;}
+    .container{padding:16px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Auth gate -->
+  <div id="auth-gate">
+    <div class="auth-box">
+      <h1>🔒 Admin</h1>
+      <p class="subtitle">Video Scraper &amp; Affiliate Manager</p>
+      <div style="margin-top:20px;">
+        <label for="token-input">Admin Token</label>
+        <input type="password" id="token-input" placeholder="Paste your ADMIN_TOKEN">
+        <button class="btn btn-gold" onclick="authenticate()" style="width:100%;margin-top:4px;">Enter</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main dashboard (hidden until auth) -->
+  <div id="dashboard" class="hidden">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+      <div>
+        <h1>Video Scraper &amp; Affiliate Manager</h1>
+        <p class="subtitle">Add videos and products manually — nothing auto-uploads or auto-publishes.</p>
+      </div>
+      <button class="btn btn-ghost" onclick="logout()">Logout</button>
+    </div>
+
+    <div style="display:flex;gap:8px;margin:16px 0 0;">
+      <a href="/admin/videos.html" style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.06em;text-transform:uppercase;color:var(--gold);text-decoration:none;padding:8px 14px;border:1px solid var(--gold-dim);">Videos &amp; Products</a>
+      <a href="/admin/social.html" style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-2);text-decoration:none;padding:8px 14px;border:1px solid var(--border);">Cross-Post</a>
+      <a href="/admin/contacts.html" style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-2);text-decoration:none;padding:8px 14px;border:1px solid var(--border);">Contacts &amp; Sequence</a>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" data-panel="videos" onclick="switchTab(this)">Videos</button>
+      <button class="tab" data-panel="products" onclick="switchTab(this)">Products</button>
+      <button class="tab" data-panel="campaigns" onclick="switchTab(this)">Warm-Up &amp; Schedule</button>
+    </div>
+
+    <!-- ===== VIDEOS PANEL ===== -->
+    <div id="panel-videos">
+      <h2>Add a Video</h2>
+      <div class="form-section">
+        <div class="form-row">
+          <div>
+            <label>Video URL *</label>
+            <input type="url" id="v-url" placeholder="https://www.tiktok.com/@user/video/...">
+            <p class="help">TikTok, Shopee, YouTube, or Instagram reel URL</p>
+          </div>
+          <div>
+            <label>Thumbnail URL</label>
+            <input type="url" id="v-thumb" placeholder="https://... (optional — paste after downloading)">
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label>Title</label>
+            <input type="text" id="v-title" placeholder="e.g. 18K Gold Necklace Unboxing from Shopee">
+          </div>
+          <div>
+            <label>Creator / Username</label>
+            <input type="text" id="v-creator" placeholder="e.g. goldlover_ph">
+          </div>
+        </div>
+        <div class="form-row full">
+          <div>
+            <label>Description</label>
+            <textarea id="v-desc" placeholder="Short description of the video content..."></textarea>
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label>Tags (comma-separated)</label>
+            <input type="text" id="v-tags" placeholder="18k, necklace, shopee, unboxing">
+          </div>
+          <div>
+            <label>Admin Notes</label>
+            <input type="text" id="v-notes" placeholder="Internal notes (not shown on site)">
+          </div>
+        </div>
+        <div class="form-row full">
+          <div>
+            <label>Affiliate Product Links (JSON array, optional)</label>
+            <textarea id="v-links" rows="3" placeholder='[{"url": "https://shopee.ph/...", "label": "18K Gold Chain", "price": 2500}]'></textarea>
+            <p class="help">Each entry: {"url": "...", "label": "...", "platform": "shopee", "price": 1234}</p>
+          </div>
+        </div>
+        <button class="btn btn-gold" onclick="addVideo()">Save as Draft</button>
+      </div>
+
+      <h2>Saved Videos</h2>
+      <div style="display:flex;gap:8px;margin-bottom:12px;">
+        <button class="btn btn-ghost btn-sm" onclick="loadVideos()">All</button>
+        <button class="btn btn-ghost btn-sm" onclick="loadVideos('queued')">Queued (from /scrape)</button>
+        <button class="btn btn-ghost btn-sm" onclick="loadVideos('draft')">Drafts</button>
+        <button class="btn btn-ghost btn-sm" onclick="loadVideos('published')">Published</button>
+        <button class="btn btn-ghost btn-sm" onclick="loadVideos('archived')">Archived</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ID</th><th>Platform</th><th>Title / URL</th><th>Creator</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+          <tbody id="video-tbody"><tr><td colspan="7" style="color:var(--text-2);">Click a filter above to load.</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== PRODUCTS PANEL ===== -->
+    <div id="panel-products" class="hidden">
+      <h2>Add an Affiliate Product</h2>
+      <div class="form-section">
+        <div class="form-row">
+          <div>
+            <label>Platform *</label>
+            <select id="p-platform">
+              <option value="shopee">Shopee</option>
+              <option value="tiktok">TikTok Shop</option>
+              <option value="lazada">Lazada</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div>
+            <label>Category *</label>
+            <select id="p-category">
+              <option value="necklace">Necklace</option>
+              <option value="bracelet">Bracelet</option>
+              <option value="ring">Ring</option>
+              <option value="earring">Earring</option>
+              <option value="pendant">Pendant</option>
+              <option value="set">Set</option>
+              <option value="bar">Gold Bar / Coin</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label>Product URL *</label>
+            <input type="url" id="p-url" placeholder="https://shopee.ph/...">
+          </div>
+          <div>
+            <label>Affiliate Link (if different)</label>
+            <input type="url" id="p-aff" placeholder="https://s.shopee.ph/... (your tracked link)">
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label>Title *</label>
+            <input type="text" id="p-title" placeholder="e.g. 18K Saudi Gold Rope Chain Necklace">
+          </div>
+          <div>
+            <label>Karat</label>
+            <select id="p-karat">
+              <option value="18K" selected>18K</option>
+              <option value="14K">14K</option>
+              <option value="21K">21K</option>
+              <option value="22K">22K</option>
+              <option value="24K">24K</option>
+              <option value="10K">10K</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label>Price (₱)</label>
+            <input type="number" id="p-price" placeholder="e.g. 2500" min="0">
+          </div>
+          <div>
+            <label>Image URL</label>
+            <input type="url" id="p-img" placeholder="https://... product image">
+          </div>
+        </div>
+        <div class="form-row full">
+          <div>
+            <label>Description</label>
+            <textarea id="p-desc" placeholder="Short product description..."></textarea>
+          </div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:center;">
+          <button class="btn btn-gold" onclick="addProduct()">Add Product</button>
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;text-transform:none;letter-spacing:normal;font-family:'Inter',sans-serif;font-size:13px;">
+            <input type="checkbox" id="p-featured"> Featured item
+          </label>
+        </div>
+      </div>
+
+      <h2>Products</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ID</th><th>Platform</th><th>Title</th><th>Category</th><th>Karat</th><th>Price</th><th>Featured</th><th>Actions</th></tr></thead>
+          <tbody id="product-tbody"><tr><td colspan="8" style="color:var(--text-2);">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== WARM-UP & SCHEDULE PANEL ===== -->
+    <div id="panel-campaigns" class="hidden">
+      <h2>1. Upload Video → Auto-Extract Frames</h2>
+      <div class="form-section">
+        <p class="help" style="margin-bottom:12px;">Upload the video you downloaded (e.g. from TikTok/Shopee). The server extracts 2–4 evenly-spaced JPEG stills automatically using ffmpeg — no manual screenshotting.</p>
+        <div class="form-row full">
+          <div>
+            <label>Video File *</label>
+            <input type="file" id="cam-file" accept="video/*">
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label>Number of frames (2-4)</label>
+            <select id="cam-framecount">
+              <option value="2">2 frames</option>
+              <option value="3" selected>3 frames</option>
+              <option value="4">4 frames</option>
+            </select>
+          </div>
+          <div style="display:flex;align-items:flex-end;">
+            <button class="btn btn-gold" onclick="uploadAndExtract()" id="upload-btn">Upload &amp; Extract Frames</button>
+          </div>
+        </div>
+        <div id="upload-progress" class="help"></div>
+        <div id="frame-preview" style="display:flex;gap:12px;flex-wrap:wrap;margin-top:16px;"></div>
+      </div>
+
+      <h2>2. Build Warm-Up Campaign</h2>
+      <div class="form-section">
+        <p class="help" style="margin-bottom:12px;">
+          <b style="color:var(--gold);">How this works:</b> Phase 1 posts the extracted stills right away, with no affiliate link — this "warms up" engagement on the post. Phase 2 posts the real video with your fresh affiliate link, timed for later (default 36h / "a day or two") so the link's session timer is still valid when people actually click through.
+        </p>
+        <div class="form-row full">
+          <div>
+            <label>Caption / Message *</label>
+            <textarea id="cam-message" placeholder="e.g. 18K gold necklace we've been eyeing 👀 full video + link dropping soon..."></textarea>
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label>Affiliate Link (used only in Phase 2)</label>
+            <input type="url" id="cam-link" placeholder="https://shopee.ph/... or TikTok Shop link">
+          </div>
+          <div>
+            <label>Delay before Phase 2 (hours)</label>
+            <input type="number" id="cam-delay" value="36" min="1" max="168">
+            <p class="help">36h ≈ a day and a half. Set to match your affiliate link's session window.</p>
+          </div>
+        </div>
+        <label style="margin-bottom:10px;">Post to</label>
+        <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:14px;" id="cam-platform-checks">
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;text-transform:none;font-family:'Inter',sans-serif;font-size:13px;"><input type="checkbox" value="facebook" class="cam-platform"> 📘 Facebook</label>
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;text-transform:none;font-family:'Inter',sans-serif;font-size:13px;"><input type="checkbox" value="instagram" class="cam-platform"> 📸 Instagram</label>
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;text-transform:none;font-family:'Inter',sans-serif;font-size:13px;"><input type="checkbox" value="tiktok" class="cam-platform"> 🎵 TikTok</label>
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;text-transform:none;font-family:'Inter',sans-serif;font-size:13px;"><input type="checkbox" value="shopee" class="cam-platform"> 🛒 Shopee</label>
+        </div>
+        <button class="btn btn-gold" onclick="createCampaign()">Schedule Warm-Up Campaign</button>
+        <p class="help" id="campaign-result"></p>
+      </div>
+
+      <h2>Scheduled Posts</h2>
+      <div style="display:flex;gap:8px;margin-bottom:12px;">
+        <button class="btn btn-ghost btn-sm" onclick="loadSchedule()">All</button>
+        <button class="btn btn-ghost btn-sm" onclick="loadSchedule('pending')">Pending</button>
+        <button class="btn btn-ghost btn-sm" onclick="loadSchedule('completed')">Completed</button>
+        <button class="btn btn-ghost btn-sm" onclick="runScheduleNow()">Run Due Posts Now</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ID</th><th>Phase</th><th>Message</th><th>Platforms</th><th>Scheduled For</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="schedule-tbody"><tr><td colspan="7" style="color:var(--text-2);">Click a filter above to load.</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- /dashboard -->
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var TOKEN = '';
+
+function toast(msg, isError){
+  var el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast' + (isError ? ' error' : '');
+  el.style.display = 'block';
+  setTimeout(function(){ el.style.display = 'none'; }, 3500);
+}
+
+function authenticate(){
+  TOKEN = document.getElementById('token-input').value.trim();
+  if(!TOKEN){ toast('Enter your admin token.', true); return; }
+  // Quick test
+  fetch('/api/admin/videos?token=' + encodeURIComponent(TOKEN))
+    .then(function(r){ if(!r.ok) throw new Error('bad'); return r.json(); })
+    .then(function(){
+      document.getElementById('auth-gate').classList.add('hidden');
+      document.getElementById('dashboard').classList.remove('hidden');
+      loadVideos();
+      loadProducts();
+    })
+    .catch(function(){ toast('Invalid token.', true); });
+}
+
+function logout(){
+  TOKEN = '';
+  document.getElementById('dashboard').classList.add('hidden');
+  document.getElementById('auth-gate').classList.remove('hidden');
+  document.getElementById('token-input').value = '';
+}
+
+function switchTab(btn){
+  document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+  btn.classList.add('active');
+  var panel = btn.getAttribute('data-panel');
+  document.getElementById('panel-videos').classList.toggle('hidden', panel !== 'videos');
+  document.getElementById('panel-products').classList.toggle('hidden', panel !== 'products');
+  document.getElementById('panel-campaigns').classList.toggle('hidden', panel !== 'campaigns');
+}
+
+function apiHeaders(){ return { 'Content-Type': 'application/json', 'x-admin-token': TOKEN }; }
+
+// ===== VIDEOS =====
+
+function addVideo(){
+  var url = document.getElementById('v-url').value.trim();
+  if(!url){ toast('Video URL is required.', true); return; }
+
+  var tagsRaw = document.getElementById('v-tags').value;
+  var tags = tagsRaw ? tagsRaw.split(',').map(function(t){ return t.trim(); }).filter(Boolean) : [];
+
+  var linksRaw = document.getElementById('v-links').value.trim();
+  var productLinks = [];
+  if(linksRaw){
+    try{ productLinks = JSON.parse(linksRaw); } catch(e){ toast('Product links must be valid JSON.', true); return; }
+  }
+
+  fetch('/api/admin/videos?token=' + encodeURIComponent(TOKEN), {
+    method: 'POST',
+    headers: apiHeaders(),
+    body: JSON.stringify({
+      videoUrl: url,
+      thumbnailUrl: document.getElementById('v-thumb').value.trim() || null,
+      title: document.getElementById('v-title').value.trim() || null,
+      creator: document.getElementById('v-creator').value.trim() || null,
+      description: document.getElementById('v-desc').value.trim() || null,
+      tags: tags,
+      productLinks: productLinks,
+      notes: document.getElementById('v-notes').value.trim() || null,
+    })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    if(data.ok){
+      toast('Video saved as draft (ID: ' + data.id + ')');
+      // Clear form
+      ['v-url','v-thumb','v-title','v-creator','v-desc','v-tags','v-notes','v-links'].forEach(function(id){ document.getElementById(id).value = ''; });
+      loadVideos();
+    } else {
+      toast(data.error || 'Failed to save.', true);
+    }
+  })
+  .catch(function(){ toast('Network error.', true); });
+}
+
+function loadVideos(status){
+  var qs = '?token=' + encodeURIComponent(TOKEN);
+  if(status) qs += '&status=' + status;
+  fetch('/api/admin/videos' + qs)
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      var tbody = document.getElementById('video-tbody');
+      var videos = data.videos || [];
+      if(videos.length === 0){
+        tbody.innerHTML = '<tr><td colspan="7" style="color:var(--text-2);">No videos found.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = videos.map(function(v){
+        var d = new Date(v.created_at).toLocaleDateString();
+        return '<tr>' +
+          '<td class="mono">' + v.id + '</td>' +
+          '<td>' + esc(v.platform) + '</td>' +
+          '<td><div class="truncate" title="' + esc(v.video_url) + '">' + esc(v.title || v.video_url) + '</div></td>' +
+          '<td>' + esc(v.creator || '—') + '</td>' +
+          '<td><span class="status ' + v.status + '">' + v.status + '</span></td>' +
+          '<td class="mono">' + d + '</td>' +
+          '<td class="actions">' +
+            (v.status !== 'published' ? '<button class="btn btn-green btn-sm" onclick="setVideoStatus(' + v.id + ',\'published\')">Publish</button>' : '') +
+            (v.status !== 'archived' ? '<button class="btn btn-ghost btn-sm" onclick="setVideoStatus(' + v.id + ',\'archived\')">Archive</button>' : '') +
+            (v.status !== 'draft' ? '<button class="btn btn-ghost btn-sm" onclick="setVideoStatus(' + v.id + ',\'draft\')">Draft</button>' : '') +
+            '<button class="btn btn-red btn-sm" onclick="deleteVideo(' + v.id + ')">Delete</button>' +
+          '</td>' +
+        '</tr>';
+      }).join('');
+    });
+}
+
+function setVideoStatus(id, status){
+  fetch('/api/admin/videos/' + id + '/status?token=' + encodeURIComponent(TOKEN), {
+    method: 'PATCH',
+    headers: apiHeaders(),
+    body: JSON.stringify({ status: status })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    if(data.ok){ toast('Status updated.'); loadVideos(); }
+    else { toast(data.error || 'Failed.', true); }
+  });
+}
+
+function deleteVideo(id){
+  if(!confirm('Delete video #' + id + '?')) return;
+  fetch('/api/admin/videos/' + id + '?token=' + encodeURIComponent(TOKEN), { method: 'DELETE', headers: apiHeaders() })
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if(data.ok){ toast('Deleted.'); loadVideos(); }
+      else { toast('Failed.', true); }
+    });
+}
+
+// ===== PRODUCTS =====
+
+function addProduct(){
+  var productUrl = document.getElementById('p-url').value.trim();
+  var title = document.getElementById('p-title').value.trim();
+  var platform = document.getElementById('p-platform').value;
+  if(!productUrl || !title){ toast('Product URL and title are required.', true); return; }
+
+  fetch('/api/admin/products?token=' + encodeURIComponent(TOKEN), {
+    method: 'POST',
+    headers: apiHeaders(),
+    body: JSON.stringify({
+      platform: platform,
+      productUrl: productUrl,
+      title: title,
+      category: document.getElementById('p-category').value,
+      pricePHP: document.getElementById('p-price').value ? Number(document.getElementById('p-price').value) : null,
+      imageUrl: document.getElementById('p-img').value.trim() || null,
+      karat: document.getElementById('p-karat').value,
+      description: document.getElementById('p-desc').value.trim() || null,
+      affiliateLink: document.getElementById('p-aff').value.trim() || null,
+      isFeatured: document.getElementById('p-featured').checked,
+    })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    if(data.ok){
+      toast('Product added (ID: ' + data.id + ')');
+      ['p-url','p-aff','p-title','p-price','p-img','p-desc'].forEach(function(id){ document.getElementById(id).value = ''; });
+      document.getElementById('p-featured').checked = false;
+      loadProducts();
+    } else {
+      toast(data.error || 'Failed.', true);
+    }
+  })
+  .catch(function(){ toast('Network error.', true); });
+}
+
+function loadProducts(){
+  fetch('/api/admin/products?token=' + encodeURIComponent(TOKEN))
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      var tbody = document.getElementById('product-tbody');
+      var products = data.products || [];
+      if(products.length === 0){
+        tbody.innerHTML = '<tr><td colspan="8" style="color:var(--text-2);">No products yet.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = products.map(function(p){
+        return '<tr>' +
+          '<td class="mono">' + p.id + '</td>' +
+          '<td>' + esc(p.platform) + '</td>' +
+          '<td><div class="truncate">' + esc(p.title) + '</div></td>' +
+          '<td>' + esc(p.category) + '</td>' +
+          '<td class="mono">' + esc(p.karat || '—') + '</td>' +
+          '<td class="mono">' + (p.price_php ? '₱' + Number(p.price_php).toLocaleString() : '—') + '</td>' +
+          '<td>' + (p.is_featured ? '⭐' : '—') + '</td>' +
+          '<td class="actions">' +
+            '<button class="btn btn-red btn-sm" onclick="deleteProduct(' + p.id + ')">Delete</button>' +
+          '</td>' +
+        '</tr>';
+      }).join('');
+    });
+}
+
+function deleteProduct(id){
+  if(!confirm('Delete product #' + id + '?')) return;
+  fetch('/api/admin/products/' + id + '?token=' + encodeURIComponent(TOKEN), { method: 'DELETE', headers: apiHeaders() })
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if(data.ok){ toast('Deleted.'); loadProducts(); }
+      else { toast('Failed.', true); }
+    });
+}
+
+// ===== WARM-UP CAMPAIGNS =====
+
+var extractedFrames = []; // [{url, timestamp}]
+var extractedVideoUrl = null;
+
+function uploadAndExtract(){
+  var fileInput = document.getElementById('cam-file');
+  var file = fileInput.files[0];
+  if(!file){ toast('Choose a video file first.', true); return; }
+
+  var frameCount = document.getElementById('cam-framecount').value;
+  var btn = document.getElementById('upload-btn');
+  var progress = document.getElementById('upload-progress');
+  btn.disabled = true;
+  progress.textContent = 'Uploading and extracting frames — this can take a moment for larger videos…';
+
+  var formData = new FormData();
+  formData.append('video', file);
+  formData.append('frameCount', frameCount);
+
+  fetch('/api/admin/videos/upload?token=' + encodeURIComponent(TOKEN), {
+    method: 'POST',
+    headers: { 'x-admin-token': TOKEN }, // don't set Content-Type — browser sets multipart boundary
+    body: formData,
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    btn.disabled = false;
+    if(!data.ok){ progress.textContent = ''; toast(data.error || 'Upload failed.', true); return; }
+    extractedFrames = data.frames || [];
+    extractedVideoUrl = data.video.url;
+    progress.textContent = 'Done — ' + extractedFrames.length + ' frame(s) extracted. Video saved at ' + extractedVideoUrl;
+    renderFramePreview();
+    toast('Frames extracted! Scroll down to build your campaign.');
+  })
+  .catch(function(err){
+    btn.disabled = false;
+    progress.textContent = '';
+    toast('Upload error: ' + err.message, true);
+  });
+}
+
+function renderFramePreview(){
+  var el = document.getElementById('frame-preview');
+  if(extractedFrames.length === 0){ el.innerHTML = ''; return; }
+  el.innerHTML = extractedFrames.map(function(f){
+    return '<div style="text-align:center;">' +
+      '<img src="' + esc(f.url) + '" style="width:140px;height:140px;object-fit:cover;border:1px solid var(--border);display:block;">' +
+      '<div class="mono" style="font-size:11px;color:var(--text-2);margin-top:4px;">t=' + f.timestamp + 's</div>' +
+    '</div>';
+  }).join('');
+}
+
+function createCampaign(){
+  if(extractedFrames.length === 0){ toast('Upload a video and extract frames first.', true); return; }
+  var message = document.getElementById('cam-message').value.trim();
+  if(!message){ toast('Write a caption/message.', true); return; }
+
+  var platforms = [];
+  document.querySelectorAll('.cam-platform:checked').forEach(function(cb){ platforms.push(cb.value); });
+  if(platforms.length === 0){ toast('Select at least one platform.', true); return; }
+
+  var delayHours = parseInt(document.getElementById('cam-delay').value) || 36;
+  var link = document.getElementById('cam-link').value.trim() || null;
+  var resultEl = document.getElementById('campaign-result');
+  resultEl.textContent = 'Scheduling…';
+
+  fetch('/api/admin/schedule/warmup?token=' + encodeURIComponent(TOKEN), {
+    method: 'POST',
+    headers: apiHeaders(),
+    body: JSON.stringify({
+      message: message,
+      warmupImages: extractedFrames.map(function(f){ return f.url; }),
+      videoUrl: extractedVideoUrl,
+      affiliateLink: link,
+      platforms: platforms,
+      delayHours: delayHours,
+    })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    if(!data.ok){ resultEl.textContent = ''; toast(data.error || 'Failed to schedule.', true); return; }
+    resultEl.innerHTML = '✅ Phase 1 (warm-up) scheduled for ' + new Date(data.phase1ScheduledFor).toLocaleString() +
+      ' · Phase 2 (video + link) scheduled for ' + new Date(data.phase2ScheduledFor).toLocaleString();
+    toast('Campaign scheduled!');
+    loadSchedule();
+  })
+  .catch(function(err){
+    resultEl.textContent = '';
+    toast('Error: ' + err.message, true);
+  });
+}
+
+function loadSchedule(status){
+  var qs = '?token=' + encodeURIComponent(TOKEN);
+  if(status) qs += '&status=' + status;
+  fetch('/api/admin/schedule' + qs)
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      var tbody = document.getElementById('schedule-tbody');
+      var posts = data.posts || [];
+      if(posts.length === 0){
+        tbody.innerHTML = '<tr><td colspan="7" style="color:var(--text-2);">No scheduled posts found.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = posts.map(function(p){
+        var when = new Date(p.scheduled_for).toLocaleString();
+        var platforms = (p.platforms || []).join(', ');
+        return '<tr>' +
+          '<td class="mono">' + p.id + '</td>' +
+          '<td>' + (p.phase ? 'Phase ' + p.phase : '—') + '</td>' +
+          '<td><div class="truncate">' + esc(p.message || '') + '</div></td>' +
+          '<td>' + esc(platforms) + '</td>' +
+          '<td class="mono">' + when + '</td>' +
+          '<td><span class="status ' + (p.status === 'completed' ? 'published' : p.status === 'failed' || p.status === 'cancelled' ? 'archived' : 'draft') + '">' + p.status + '</span></td>' +
+          '<td class="actions">' +
+            (p.status === 'pending' ? '<button class="btn btn-red btn-sm" onclick="cancelSchedule(' + p.id + ')">Cancel</button>' : '') +
+          '</td>' +
+        '</tr>';
+      }).join('');
+    });
+}
+
+function cancelSchedule(id){
+  if(!confirm('Cancel scheduled post #' + id + '?')) return;
+  fetch('/api/admin/schedule/' + id + '?token=' + encodeURIComponent(TOKEN), { method: 'DELETE', headers: apiHeaders() })
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if(data.ok){ toast('Cancelled.'); loadSchedule(); }
+      else { toast(data.error || 'Failed.', true); }
+    });
+}
+
+function runScheduleNow(){
+  fetch('/api/admin/schedule/run-now?token=' + encodeURIComponent(TOKEN), { method: 'POST', headers: apiHeaders() })
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      toast('Checked ' + data.checked + ' due post(s), executed ' + data.executed + '.');
+      loadSchedule();
+    });
+}
+
+function esc(str){
+  var div = document.createElement('div');
+  div.textContent = str || '';
+  return div.innerHTML;
+}
+
+// Auto-auth if token in hash (for bookmarking convenience)
+(function(){
+  if(location.hash && location.hash.length > 1){
+    document.getElementById('token-input').value = location.hash.slice(1);
+    authenticate();
+  }
+})();
+</script>
+
+</body>
+</html>

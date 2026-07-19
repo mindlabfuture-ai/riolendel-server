@@ -1,3 +1,11 @@
 node_modules/
 .env
 *.log
+
+# Uploaded videos and extracted frames — these are runtime data, not
+# source. On Railway they live on the ephemeral filesystem unless you
+# attach a volume; see README for persistent-storage notes.
+public/uploads/videos/*
+public/uploads/frames/*
+!public/uploads/videos/.gitkeep
+!public/uploads/frames/.gitkeep

@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<title>18K Gold Picks — Riolendel</title>
+<meta name="description" content="Curated 18K gold jewelry from Shopee and TikTok Shop — necklaces, bracelets, rings, and earrings hand-picked by Riolendel. Affiliate links included.">
+<link rel="canonical" href="https://riolendel.com/shop/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="18K Gold Picks — Riolendel">
+<meta property="og:description" content="Curated 18K gold jewelry from Shopee and TikTok Shop — necklaces, bracelets, rings, and earrings.">
+<meta property="og:url" content="https://riolendel.com/shop/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#171310;
+    --panel-dark:#221C15;
+    --panel-dark-2:#2B2318;
+    --gold:#B98A2E;
+    --gold-bright:#D9A94A;
+    --gold-dim:#8A6E2F;
+    --parchment:#F1E9D8;
+    --paper:#FAF6EC;
+    --line-dark:rgba(241,233,216,0.16);
+    --text-dark-1:#F1E9D8;
+    --text-dark-2:#C9BBA0;
+    --ink-text:#221C15;
+    --ink-muted:#5B5346;
+    --shopee:#EE4D2D;
+    --tiktok:#000;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink-text);font-family:'Inter',sans-serif;line-height:1.6;}
+  h1,h2,h3{font-family:'Fraunces',serif;font-weight:500;margin:0;}
+  a{color:inherit;}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 32px;}
+  .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold-dim);}
+
+  /* Nav */
+  .topbar{background:var(--ink);border-bottom:1px solid var(--line-dark);}
+  .topbar-inner{max-width:1080px;margin:0 auto;padding:16px 32px;display:flex;align-items:center;justify-content:space-between;}
+  .topbar-inner img{height:30px;}
+  .topbar-nav{display:flex;gap:20px;align-items:center;}
+  .topbar-nav a{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-dark-2);text-decoration:none;}
+  .topbar-nav a:hover{color:var(--gold-bright);}
+  .topbar-nav a.active{color:var(--gold-bright);}
+
+  /* Hero */
+  .shop-hero{background:var(--ink);color:var(--text-dark-1);padding:56px 0 48px;border-bottom:1px solid var(--line-dark);}
+  .shop-hero h1{font-size:clamp(28px,4vw,44px);line-height:1.12;max-width:700px;}
+  .shop-hero h1 em{font-style:italic;color:var(--gold-bright);}
+  .shop-hero p{max-width:560px;color:var(--text-dark-2);font-size:16px;margin-top:18px;}
+
+  /* Disclosure */
+  .disclosure{background:var(--parchment);border:1px solid #DDD3BC;padding:16px 24px;margin-top:32px;font-size:13px;color:var(--ink-muted);line-height:1.6;}
+  .disclosure strong{color:var(--ink-text);}
+
+  /* Category tabs */
+  .cat-strip{border-bottom:1px solid #DDD3BC;margin-top:32px;position:sticky;top:0;background:var(--paper);z-index:10;}
+  .cat-inner{max-width:1080px;margin:0 auto;padding:0 32px;display:flex;gap:0;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  .cat-tab{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;padding:14px 20px;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;color:var(--ink-muted);background:none;border-top:none;border-left:none;border-right:none;}
+  .cat-tab:hover{color:var(--ink-text);}
+  .cat-tab.active{color:var(--gold);border-bottom-color:var(--gold);}
+
+  /* Product grid */
+  section.products{padding:40px 0 60px;}
+  .product-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(240px, 1fr));gap:1px;background:#DDD3BC;border:1px solid #DDD3BC;}
+  .product-card{background:var(--paper);padding:0;display:flex;flex-direction:column;text-decoration:none;color:inherit;transition:background 0.15s;}
+  .product-card:hover{background:#F3EDE0;}
+  .product-img{width:100%;aspect-ratio:1;object-fit:cover;background:#E8DFCC;display:flex;align-items:center;justify-content:center;}
+  .product-img img{width:100%;height:100%;object-fit:cover;}
+  .product-img .placeholder{font-size:32px;color:var(--gold-dim);opacity:0.4;}
+  .product-body{padding:18px 20px;flex:1;display:flex;flex-direction:column;}
+  .product-platform{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px;display:inline-flex;align-items:center;gap:6px;}
+  .product-platform.shopee{color:var(--shopee);}
+  .product-platform.tiktok{color:#666;}
+  .product-card h4{font-family:'Fraunces',serif;font-size:15px;line-height:1.35;margin:0 0 8px;font-weight:500;}
+  .product-karat{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--gold);margin-bottom:8px;}
+  .product-price{font-family:'IBM Plex Mono',monospace;font-size:15px;color:var(--ink-text);margin-top:auto;padding-top:8px;}
+  .product-cta{display:inline-block;margin-top:12px;padding:9px 18px;background:var(--gold-bright);color:#241D12;font-size:12px;font-weight:600;text-decoration:none;letter-spacing:0.04em;text-transform:uppercase;font-family:'IBM Plex Mono',monospace;}
+
+  /* Video section */
+  .video-section{padding:48px 0;border-top:1px solid #DDD3BC;}
+  .video-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(300px, 1fr));gap:20px;margin-top:24px;}
+  .video-card{background:var(--parchment);border:1px solid #DDD3BC;overflow:hidden;text-decoration:none;color:inherit;}
+  .video-card:hover{background:#EDE5D2;}
+  .video-thumb{width:100%;aspect-ratio:16/9;object-fit:cover;background:#E0D6C2;}
+  .video-thumb img{width:100%;height:100%;object-fit:cover;}
+  .video-body{padding:16px 20px;}
+  .video-body .product-platform{margin-bottom:6px;}
+  .video-body h4{font-family:'Fraunces',serif;font-size:15px;margin:0 0 6px;font-weight:500;line-height:1.35;}
+  .video-body p{font-size:13px;color:var(--ink-muted);margin:0;}
+  .video-creator{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--gold-dim);margin-top:8px;}
+
+  /* Empty state */
+  .empty{text-align:center;padding:60px 20px;color:var(--ink-muted);font-size:15px;background:var(--paper);grid-column:1/-1;}
+  .empty p{margin:8px 0 0;}
+
+  /* Loading */
+  .loading{text-align:center;padding:60px 20px;color:var(--ink-muted);font-size:14px;}
+
+  footer{background:var(--ink);color:var(--text-dark-2);padding:36px 0;font-size:13px;}
+  footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;}
+  footer a{text-decoration:underline;color:var(--text-dark-2);}
+
+  @media(max-width:760px){
+    .topbar-inner{padding:14px 20px;}
+    .wrap{padding:0 20px;}
+    .product-grid{grid-template-columns:repeat(2, 1fr);}
+    .video-grid{grid-template-columns:1fr;}
+    .cat-inner{padding:0 20px;}
+  }
+  @media(max-width:440px){
+    .product-grid{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <a href="/"><img src="/assets/logo-nav.png" alt="Riolendel"></a>
+    <div class="topbar-nav">
+      <a href="/">HOME</a>
+      <a href="/blog/">STORIES</a>
+      <a href="/shop/" class="active">SHOP PICKS</a>
+    </div>
+  </div>
+</div>
+
+<div class="shop-hero">
+  <div class="wrap">
+    <div class="eyebrow" style="color:var(--gold-bright)">Curated affiliate picks</div>
+    <h1>18K gold jewelry we'd <em>actually recommend</em></h1>
+    <p>Hand-picked from Shopee and TikTok Shop — pieces with real reviews, proper karat markings, and sellers with track records. Every link here is an affiliate link: you pay the same price, we earn a small commission.</p>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="disclosure">
+    <strong>Affiliate disclosure:</strong> This page contains affiliate links to Shopee and TikTok Shop. When you purchase through these links, Riolendel earns a commission at no extra cost to you. We only feature items we've reviewed or that meet our quality criteria. Prices shown are approximate and may change — always check the seller's page for the current price.
+  </div>
+</div>
+
+<div class="cat-strip">
+  <div class="cat-inner">
+    <button class="cat-tab active" data-cat="all">All</button>
+    <button class="cat-tab" data-cat="necklace">Necklaces</button>
+    <button class="cat-tab" data-cat="bracelet">Bracelets</button>
+    <button class="cat-tab" data-cat="ring">Rings</button>
+    <button class="cat-tab" data-cat="earring">Earrings</button>
+    <button class="cat-tab" data-cat="pendant">Pendants</button>
+    <button class="cat-tab" data-cat="set">Sets</button>
+  </div>
+</div>
+
+<section class="products">
+  <div class="wrap">
+    <div class="product-grid" id="product-grid">
+      <div class="loading">Loading picks…</div>
+    </div>
+  </div>
+</section>
+
+<section class="video-section">
+  <div class="wrap">
+    <div class="eyebrow" style="margin-bottom:6px;">Video reviews</div>
+    <h2>See these pieces in action</h2>
+    <p style="color:var(--ink-muted);font-size:15px;margin-top:10px;max-width:560px;">Real videos from TikTok and Shopee — unboxings, try-ons, and close-ups so you know what you're getting before you click.</p>
+    <div class="video-grid" id="video-grid">
+      <div class="loading">Loading videos…</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div><a href="/" style="text-decoration:none;">riolendel.com</a> — gold education, plain and simple. <a href="/blog/">Stories</a></div>
+    <div>Affiliate links present. Not investment advice. <a href="/">Home</a></div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  const grid = document.getElementById('product-grid');
+  const videoGrid = document.getElementById('video-grid');
+  const tabs = document.querySelectorAll('.cat-tab');
+  let allProducts = [];
+
+  function esc(str){
+    const div = document.createElement('div');
+    div.textContent = str || '';
+    return div.innerHTML;
+  }
+
+  function formatPrice(p){
+    if(!p) return '';
+    return '₱' + Number(p).toLocaleString('en-PH', { maximumFractionDigits: 0 });
+  }
+
+  function renderProducts(products){
+    if(products.length === 0){
+      grid.innerHTML = '<div class="empty"><p>No items in this category yet — check back soon.</p></div>';
+      return;
+    }
+    grid.innerHTML = products.map(function(p){
+      var link = p.affiliate_link || p.product_url;
+      var platformClass = (p.platform || '').toLowerCase();
+      var platformLabel = platformClass === 'shopee' ? 'Shopee' : platformClass === 'tiktok' ? 'TikTok Shop' : p.platform;
+      return '<a class="product-card" href="' + esc(link) + '" target="_blank" rel="noopener noreferrer nofollow">' +
+        '<div class="product-img">' +
+          (p.image_url
+            ? '<img src="' + esc(p.image_url) + '" alt="' + esc(p.title) + '" loading="lazy">'
+            : '<div class="placeholder">✦</div>') +
+        '</div>' +
+        '<div class="product-body">' +
+          '<div class="product-platform ' + platformClass + '">' + esc(platformLabel) + '</div>' +
+          '<h4>' + esc(p.title) + '</h4>' +
+          '<div class="product-karat">' + esc(p.karat || '18K') + ' Gold</div>' +
+          (p.price_php ? '<div class="product-price">' + formatPrice(p.price_php) + '</div>' : '') +
+          '<span class="product-cta">View on ' + esc(platformLabel) + ' →</span>' +
+        '</div>' +
+      '</a>';
+    }).join('');
+  }
+
+  function filterByCategory(cat){
+    if(cat === 'all') return renderProducts(allProducts);
+    renderProducts(allProducts.filter(function(p){ return p.category === cat; }));
+  }
+
+  tabs.forEach(function(tab){
+    tab.addEventListener('click', function(){
+      tabs.forEach(function(t){ t.classList.remove('active'); });
+      tab.classList.add('active');
+      filterByCategory(tab.getAttribute('data-cat'));
+    });
+  });
+
+  // Load products
+  fetch('/api/products')
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      allProducts = (data && data.products) || [];
+      if(allProducts.length === 0){
+        grid.innerHTML = '<div class="empty"><p>We\'re curating our first batch of 18K gold picks — check back soon!</p></div>';
+      } else {
+        renderProducts(allProducts);
+      }
+    })
+    .catch(function(){
+      grid.innerHTML = '<div class="empty"><p>Could not load products right now.</p></div>';
+    });
+
+  // Load videos
+  fetch('/api/videos')
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      var videos = (data && data.videos) || [];
+      if(videos.length === 0){
+        videoGrid.innerHTML = '<div class="empty"><p>Video reviews coming soon!</p></div>';
+        return;
+      }
+      videoGrid.innerHTML = videos.map(function(v){
+        var platformClass = (v.platform || '').toLowerCase();
+        var platformLabel = platformClass === 'tiktok' ? 'TikTok' : platformClass === 'shopee' ? 'Shopee' : v.platform;
+        return '<a class="video-card" href="' + esc(v.video_url) + '" target="_blank" rel="noopener noreferrer nofollow">' +
+          '<div class="video-thumb">' +
+            (v.thumbnail_url
+              ? '<img src="' + esc(v.thumbnail_url) + '" alt="' + esc(v.title) + '" loading="lazy">'
+              : '') +
+          '</div>' +
+          '<div class="video-body">' +
+            '<div class="product-platform ' + platformClass + '">' + esc(platformLabel) + '</div>' +
+            '<h4>' + esc(v.title || 'Video Review') + '</h4>' +
+            (v.description ? '<p>' + esc(v.description.slice(0, 120)) + '</p>' : '') +
+            (v.creator ? '<div class="video-creator">by @' + esc(v.creator) + '</div>' : '') +
+          '</div>' +
+        '</a>';
+      }).join('');
+    })
+    .catch(function(){
+      videoGrid.innerHTML = '<div class="empty"><p>Videos temporarily unavailable.</p></div>';
+    });
+})();
+</script>
+
+</body>
+</html>

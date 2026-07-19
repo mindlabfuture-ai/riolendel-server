@@ -38,9 +38,22 @@ async function checkForNotableMove(newPrice) {
 
   const subject = `Gold just ${direction} ${Math.abs(changePct).toFixed(1)}% — here's what to know`;
   const message = `Gold ${direction} ${Math.abs(changePct).toFixed(1)}% today, now around $${newPrice.toFixed(2)}/oz. ` +
-    `Check riolendel.com for the current peso price and context. Reply STOP to unsubscribe.`;
+    `Check riolendel.com for the current peso price and context. Unsubscribe anytime by replying STOP to any of our emails.`;
 
-  await notify.notifySubscribers(subscribers, { subject, message });
+  // Price alerts are EMAIL ONLY, regardless of a subscriber's channel
+  // preference (email/sms/both) — this is the highest-volume trigger
+  // in the whole system (fires every time gold moves ≥1.5% in a day),
+  // so keeping it off Semaphore's per-SMS billing is the single biggest
+  // cost lever available. Email is collected from every subscriber
+  // (required field on the opt-in form), so this never excludes anyone
+  // who wants the alert. SMS still gets used elsewhere — the one-time
+  // welcome text in sequences.js — just not for this recurring trigger.
+  let sent = 0;
+  for (const sub of subscribers) {
+    const result = await notify.sendEmail(sub.email, subject, message);
+    if (result.ok) sent++;
+  }
+  console.log(`[price-alerts] Sent ${sent}/${subscribers.length} email alert(s).`);
 }
 
 module.exports = { checkForNotableMove, MOVE_THRESHOLD_PCT };

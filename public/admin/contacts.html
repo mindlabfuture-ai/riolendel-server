@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contacts & Sequences — Riolendel Admin</title>
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#13110E;--surface:#1C1814;--surface-2:#252019;--border:#332D24;
+    --gold:#D9A94A;--gold-dim:#8A6E2F;--text:#E8DFCC;--text-2:#9C9080;
+    --green:#7FBF6B;--red:#E08A7D;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;line-height:1.5;}
+  .container{max-width:960px;margin:0 auto;padding:20px 24px;}
+  h1{font-size:22px;font-weight:600;margin:0;color:var(--gold);}
+  h2{font-size:16px;font-weight:600;margin:24px 0 14px;color:var(--text);}
+  .subtitle{color:var(--text-2);font-size:13px;margin-top:4px;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+
+  .auth-box{background:var(--surface);border:1px solid var(--border);padding:28px;max-width:400px;margin:80px auto;}
+  .auth-box h1{margin-bottom:16px;}
+  .auth-box input{width:100%;padding:10px 12px;background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:13px;margin-bottom:12px;}
+  .auth-box input:focus{outline:1px solid var(--gold);border-color:var(--gold);}
+
+  .btn{padding:8px 16px;border:none;cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.04em;font-weight:500;}
+  .btn-gold{background:var(--gold);color:#1C1814;}
+  .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text-2);}
+  .btn-ghost:hover{border-color:var(--gold-dim);color:var(--text);}
+  .btn-sm{padding:5px 10px;font-size:11px;}
+
+  .admin-nav{display:flex;gap:12px;margin:20px 0 0;flex-wrap:wrap;}
+  .admin-nav a{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-2);text-decoration:none;padding:8px 14px;border:1px solid var(--border);}
+  .admin-nav a:hover,.admin-nav a.active{color:var(--gold);border-color:var(--gold-dim);}
+
+  .provider-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px;}
+  .provider-card{background:var(--surface);border:1px solid var(--border);padding:16px;}
+  .provider-card .name{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:8px;}
+  .badge{font-size:11px;padding:3px 8px;display:inline-block;font-family:'IBM Plex Mono',monospace;letter-spacing:0.04em;}
+  .badge.ok{color:var(--green);background:rgba(127,191,107,0.12);}
+  .badge.off{color:var(--red);background:rgba(224,138,125,0.12);}
+
+  .form-section{background:var(--surface);border:1px solid var(--border);padding:24px;margin-top:12px;}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:14px;}
+  label{display:block;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-2);margin-bottom:6px;}
+  input,select{width:100%;padding:9px 12px;background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;}
+  input:focus,select:focus{outline:1px solid var(--gold);border-color:var(--gold);}
+  .help{font-size:12px;color:var(--text-2);margin-top:6px;}
+
+  .stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px;}
+  .stat-card{background:var(--surface);border:1px solid var(--border);padding:18px;text-align:center;}
+  .stat-card .num{font-size:28px;font-weight:600;color:var(--gold);}
+  .stat-card .label{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-2);margin-top:4px;}
+
+  .table-wrap{overflow-x:auto;margin-top:16px;}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th{text-align:left;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-2);padding:10px 12px;border-bottom:1px solid var(--border);white-space:nowrap;}
+  td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top;}
+  .truncate{max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .status{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.04em;text-transform:uppercase;padding:3px 8px;display:inline-block;}
+  .status.pending{color:var(--text-2);background:var(--surface-2);}
+  .status.sent{color:var(--green);background:rgba(127,191,107,0.1);}
+  .status.failed{color:var(--red);background:rgba(224,138,125,0.1);}
+
+  .toast{position:fixed;top:20px;right:20px;background:var(--surface);border:1px solid var(--gold);color:var(--text);padding:12px 20px;font-size:13px;z-index:100;display:none;max-width:400px;}
+  .toast.error{border-color:var(--red);}
+  .hidden{display:none;}
+
+  @media(max-width:640px){
+    .form-row{grid-template-columns:1fr;}
+    .provider-grid{grid-template-columns:1fr;}
+    .stat-grid{grid-template-columns:1fr;}
+    .container{padding:16px;}
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div id="auth-gate">
+    <div class="auth-box">
+      <h1>🔒 Admin</h1>
+      <p class="subtitle">Contacts &amp; Nurture Sequence</p>
+      <div style="margin-top:20px;">
+        <label for="token-input">Admin Token</label>
+        <input type="password" id="token-input" placeholder="Paste your ADMIN_TOKEN">
+        <button class="btn btn-gold" onclick="authenticate()" style="width:100%;">Enter</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="dashboard" class="hidden">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+      <div>
+        <h1>Contacts &amp; Nurture Sequence</h1>
+        <p class="subtitle">Import contacts, track the welcome drip, check provider health.</p>
+      </div>
+      <button class="btn btn-ghost" onclick="logout()">Logout</button>
+    </div>
+
+    <div class="admin-nav">
+      <a href="/admin/videos.html">Videos &amp; Products</a>
+      <a href="/admin/social.html">Cross-Post</a>
+      <a href="/admin/contacts.html" class="active">Contacts &amp; Sequence</a>
+    </div>
+
+    <h2>Provider Status</h2>
+    <div class="provider-grid" id="provider-grid">
+      <div class="provider-card"><div class="name">📧 Resend (Email)</div><span class="badge off">checking…</span></div>
+      <div class="provider-card"><div class="name">📱 Semaphore (SMS)</div><span class="badge off">checking…</span></div>
+    </div>
+
+    <h2>Import Contacts (CSV)</h2>
+    <div class="form-section">
+      <p class="help" style="margin-bottom:12px;">
+        CSV columns: <span class="mono">name, email, phone, channel</span> (channel is optional — email/sms/both, auto-detected if left blank). Each imported contact is enrolled into the welcome drip: PDF email immediately, care-tips email after 2 days, shop nudge after 5 days, plus an SMS welcome if a phone number is present.
+      </p>
+      <div class="form-row">
+        <div>
+          <label>CSV File *</label>
+          <input type="file" id="csv-file" accept=".csv,text/csv">
+        </div>
+        <div>
+          <label>Send first message at (optional)</label>
+          <input type="datetime-local" id="csv-sendat">
+          <p class="help">Leave blank to start immediately. All later steps are offset from this time.</p>
+        </div>
+      </div>
+      <button class="btn btn-gold" onclick="importCsv()" id="import-btn">Upload &amp; Enroll</button>
+      <p class="help" id="import-result"></p>
+    </div>
+
+    <h2>Sequence Queue</h2>
+    <div class="stat-grid" id="stat-grid">
+      <div class="stat-card"><div class="num" id="stat-pending">—</div><div class="label">Pending</div></div>
+      <div class="stat-card"><div class="num" id="stat-sent">—</div><div class="label">Sent</div></div>
+      <div class="stat-card"><div class="num" id="stat-failed">—</div><div class="label">Failed</div></div>
+    </div>
+    <div style="display:flex;gap:8px;margin:16px 0 12px;">
+      <button class="btn btn-ghost btn-sm" onclick="loadMessages()">All</button>
+      <button class="btn btn-ghost btn-sm" onclick="loadMessages('pending')">Pending</button>
+      <button class="btn btn-ghost btn-sm" onclick="loadMessages('sent')">Sent</button>
+      <button class="btn btn-ghost btn-sm" onclick="loadMessages('failed')">Failed</button>
+      <button class="btn btn-ghost btn-sm" onclick="runNow()">Run Due Messages Now</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>To</th><th>Channel</th><th>Step</th><th>Subject / Preview</th><th>Scheduled For</th><th>Status</th></tr></thead>
+        <tbody id="msg-tbody"><tr><td colspan="7" style="color:var(--text-2);">Click a filter above to load.</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var TOKEN = '';
+
+function toast(msg, isError){
+  var el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast' + (isError ? ' error' : '');
+  el.style.display = 'block';
+  setTimeout(function(){ el.style.display = 'none'; }, 4000);
+}
+
+function esc(s){ var d = document.createElement('div'); d.textContent = s||''; return d.innerHTML; }
+
+function authenticate(){
+  TOKEN = document.getElementById('token-input').value.trim();
+  if(!TOKEN){ toast('Enter your admin token.', true); return; }
+  fetch('/api/admin/sequence/stats?token=' + encodeURIComponent(TOKEN))
+    .then(function(r){ if(!r.ok) throw new Error('bad'); return r.json(); })
+    .then(function(){
+      document.getElementById('auth-gate').classList.add('hidden');
+      document.getElementById('dashboard').classList.remove('hidden');
+      loadProviderStatus();
+      loadStats();
+    })
+    .catch(function(){ toast('Invalid token.', true); });
+}
+
+function logout(){
+  TOKEN = '';
+  document.getElementById('dashboard').classList.add('hidden');
+  document.getElementById('auth-gate').classList.remove('hidden');
+  document.getElementById('token-input').value = '';
+}
+
+function loadProviderStatus(){
+  var grid = document.getElementById('provider-grid');
+  grid.innerHTML =
+    '<div class="provider-card"><div class="name">📧 Resend (Email)</div><span class="badge" id="badge-email">checking…</span></div>' +
+    '<div class="provider-card"><div class="name">📱 Semaphore (SMS)</div><span class="badge" id="badge-sms">checking…</span></div>';
+
+  fetch('/api/admin/notify/status?token=' + encodeURIComponent(TOKEN))
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      var p = data.providers || {};
+      var emailEl = document.getElementById('badge-email');
+      var smsEl = document.getElementById('badge-sms');
+      if(p.email && p.email.configured){ emailEl.textContent = '✓ Configured'; emailEl.className = 'badge ok'; }
+      else { emailEl.textContent = 'Not configured'; emailEl.className = 'badge off'; }
+      if(p.sms && p.sms.configured){ smsEl.textContent = '✓ Configured'; smsEl.className = 'badge ok'; }
+      else { smsEl.textContent = 'Not configured'; smsEl.className = 'badge off'; }
+    })
+    .catch(function(){
+      toast('Could not check provider status.', true);
+    });
+}
+
+function importCsv(){
+  var fileInput = document.getElementById('csv-file');
+  var file = fileInput.files[0];
+  if(!file){ toast('Choose a CSV file first.', true); return; }
+
+  var btn = document.getElementById('import-btn');
+  var resultEl = document.getElementById('import-result');
+  btn.disabled = true;
+  resultEl.textContent = 'Uploading and enrolling…';
+
+  var formData = new FormData();
+  formData.append('file', file);
+  var sendAt = document.getElementById('csv-sendat').value;
+  if(sendAt) formData.append('sendAt', new Date(sendAt).toISOString());
+
+  fetch('/api/admin/contacts/import?token=' + encodeURIComponent(TOKEN), {
+    method: 'POST',
+    headers: { 'x-admin-token': TOKEN },
+    body: formData,
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    btn.disabled = false;
+    if(!data.ok){ resultEl.textContent = ''; toast(data.error || 'Import failed.', true); return; }
+    resultEl.innerHTML = '✅ Parsed ' + data.parsed + ' row(s) — imported ' + data.imported + ', skipped ' + data.skipped +
+      '. Enqueued ' + data.messagesEnqueued + ' message(s) starting ' + new Date(data.startAt).toLocaleString() + '.';
+    toast('Import complete!');
+    loadStats();
+  })
+  .catch(function(err){
+    btn.disabled = false;
+    resultEl.textContent = '';
+    toast('Error: ' + err.message, true);
+  });
+}
+
+function loadStats(){
+  fetch('/api/admin/sequence/stats?token=' + encodeURIComponent(TOKEN))
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      var s = data.stats || {};
+      document.getElementById('stat-pending').textContent = s.pending || 0;
+      document.getElementById('stat-sent').textContent = s.sent || 0;
+      document.getElementById('stat-failed').textContent = s.failed || 0;
+    });
+}
+
+function loadMessages(status){
+  var qs = '?token=' + encodeURIComponent(TOKEN);
+  if(status) qs += '&status=' + status;
+  fetch('/api/admin/sequence/messages' + qs)
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      var tbody = document.getElementById('msg-tbody');
+      var msgs = data.messages || [];
+      if(msgs.length === 0){
+        tbody.innerHTML = '<tr><td colspan="7" style="color:var(--text-2);">No messages found.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = msgs.map(function(m){
+        var to = m.channel === 'email' ? m.email : m.phone;
+        var preview = m.subject || (m.body || '').slice(0, 60);
+        var when = new Date(m.scheduled_for).toLocaleString();
+        return '<tr>' +
+          '<td class="mono">' + m.id + '</td>' +
+          '<td>' + esc(to || '—') + '</td>' +
+          '<td>' + esc(m.channel) + '</td>' +
+          '<td class="mono">' + m.step + '</td>' +
+          '<td><div class="truncate">' + esc(preview) + '</div></td>' +
+          '<td class="mono">' + when + '</td>' +
+          '<td><span class="status ' + m.status + '">' + m.status + '</span></td>' +
+        '</tr>';
+      }).join('');
+    });
+}
+
+function runNow(){
+  fetch('/api/admin/sequence/run-now?token=' + encodeURIComponent(TOKEN), { method: 'POST', headers: { 'x-admin-token': TOKEN } })
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      toast('Checked ' + data.checked + ', sent ' + data.sent + ', failed ' + data.failed + '.');
+      loadStats();
+      loadMessages();
+    });
+}
+
+(function(){
+  if(location.hash && location.hash.length > 1){
+    document.getElementById('token-input').value = location.hash.slice(1);
+    authenticate();
+  }
+})();
+</script>
+</body>
+</html>

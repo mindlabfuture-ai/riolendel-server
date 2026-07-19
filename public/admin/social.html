@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cross-Post — Riolendel Admin</title>
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#13110E;--surface:#1C1814;--surface-2:#252019;--border:#332D24;
+    --gold:#D9A94A;--gold-dim:#8A6E2F;--text:#E8DFCC;--text-2:#9C9080;
+    --green:#7FBF6B;--red:#E08A7D;--blue:#6BA3BF;
+    --fb:#1877F2;--ig:#E1306C;--tt:#000;--shopee:#EE4D2D;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;line-height:1.5;}
+  .container{max-width:960px;margin:0 auto;padding:20px 24px;}
+  h1{font-size:22px;font-weight:600;margin:0;color:var(--gold);}
+  h2{font-size:16px;font-weight:600;margin:24px 0 14px;color:var(--text);}
+  .subtitle{color:var(--text-2);font-size:13px;margin-top:4px;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+
+  .auth-box{background:var(--surface);border:1px solid var(--border);padding:28px;max-width:400px;margin:80px auto;}
+  .auth-box h1{margin-bottom:16px;}
+  .auth-box input{width:100%;padding:10px 12px;background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:13px;margin-bottom:12px;}
+  .auth-box input:focus{outline:1px solid var(--gold);border-color:var(--gold);}
+
+  .btn{padding:8px 16px;border:none;cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.04em;font-weight:500;transition:opacity .15s;}
+  .btn:hover{opacity:0.85;}
+  .btn-gold{background:var(--gold);color:#1C1814;}
+  .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text-2);}
+  .btn-ghost:hover{border-color:var(--gold-dim);color:var(--text);}
+  .btn-sm{padding:5px 10px;font-size:11px;}
+
+  /* Nav */
+  .admin-nav{display:flex;gap:12px;margin:20px 0 0;flex-wrap:wrap;}
+  .admin-nav a{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-2);text-decoration:none;padding:8px 14px;border:1px solid var(--border);}
+  .admin-nav a:hover,.admin-nav a.active{color:var(--gold);border-color:var(--gold-dim);}
+
+  /* Platform status */
+  .platform-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:16px;}
+  .platform-card{background:var(--surface);border:1px solid var(--border);padding:16px;text-align:center;}
+  .platform-card .icon{font-size:28px;margin-bottom:8px;}
+  .platform-card .name{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:6px;}
+  .platform-card .badge{font-size:11px;padding:3px 8px;display:inline-block;font-family:'IBM Plex Mono',monospace;letter-spacing:0.04em;}
+  .badge.api{color:var(--green);background:rgba(127,191,107,0.12);}
+  .badge.manual{color:var(--gold);background:rgba(217,169,74,0.12);}
+  .badge.off{color:var(--text-2);background:var(--surface-2);}
+
+  /* Compose */
+  .compose{background:var(--surface);border:1px solid var(--border);padding:24px;margin-top:20px;}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:14px;}
+  .form-row.full{grid-template-columns:1fr;}
+  label{display:block;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-2);margin-bottom:6px;}
+  input,select,textarea{width:100%;padding:9px 12px;background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;}
+  input:focus,select:focus,textarea:focus{outline:1px solid var(--gold);border-color:var(--gold);}
+  textarea{resize:vertical;min-height:80px;}
+
+  /* Platform checkboxes */
+  .platform-checks{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:14px;}
+  .platform-check{display:flex;align-items:center;gap:8px;cursor:pointer;padding:8px 14px;border:1px solid var(--border);background:var(--bg);transition:all .15s;}
+  .platform-check:hover{border-color:var(--gold-dim);}
+  .platform-check.checked{border-color:var(--gold);background:rgba(217,169,74,0.08);}
+  .platform-check input{display:none;}
+  .platform-check .dot{width:10px;height:10px;border-radius:50%;border:2px solid var(--border);}
+  .platform-check.checked .dot{background:var(--gold);border-color:var(--gold);}
+  .platform-check .plabel{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.04em;}
+
+  /* Preview */
+  .preview-row{display:grid;grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));gap:12px;margin-top:16px;}
+  .preview-card{background:var(--bg);border:1px solid var(--border);padding:14px;font-size:13px;}
+  .preview-card .pname{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:8px;color:var(--gold);}
+  .preview-card .pcontent{color:var(--text-2);white-space:pre-wrap;word-break:break-word;max-height:120px;overflow-y:auto;font-size:12px;}
+  .preview-card .plimit{font-size:10px;color:var(--text-2);margin-top:6px;font-family:'IBM Plex Mono',monospace;}
+
+  /* Results */
+  .result-row{margin-top:16px;display:flex;flex-direction:column;gap:8px;}
+  .result-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border:1px solid var(--border);background:var(--surface);font-size:13px;}
+  .result-item .rplatform{font-family:'IBM Plex Mono',monospace;font-size:12px;min-width:80px;}
+  .result-item.success{border-color:var(--green);}
+  .result-item.fail{border-color:var(--red);}
+  .result-item.manual-ok{border-color:var(--gold);}
+
+  /* History */
+  .history-list{display:flex;flex-direction:column;gap:8px;margin-top:12px;}
+  .history-item{background:var(--surface);border:1px solid var(--border);padding:14px;}
+  .history-item .hmeta{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-2);margin-bottom:6px;display:flex;gap:12px;flex-wrap:wrap;}
+  .history-item .hmsg{font-size:13px;color:var(--text);margin-bottom:8px;white-space:pre-wrap;word-break:break-word;}
+  .history-item .hplatforms{display:flex;gap:6px;flex-wrap:wrap;}
+  .history-item .hplatforms span{font-size:11px;padding:2px 8px;font-family:'IBM Plex Mono',monospace;}
+
+  .toast{position:fixed;top:20px;right:20px;background:var(--surface);border:1px solid var(--gold);color:var(--text);padding:12px 20px;font-size:13px;z-index:100;display:none;max-width:400px;}
+  .toast.error{border-color:var(--red);}
+  .hidden{display:none;}
+  .copy-btn{cursor:pointer;background:var(--surface-2);border:1px solid var(--border);color:var(--text);padding:4px 10px;font-size:11px;font-family:'IBM Plex Mono',monospace;}
+
+  @media(max-width:640px){
+    .platform-grid{grid-template-columns:1fr 1fr;}
+    .form-row{grid-template-columns:1fr;}
+    .preview-row{grid-template-columns:1fr;}
+    .container{padding:16px;}
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Auth gate -->
+  <div id="auth-gate">
+    <div class="auth-box">
+      <h1>🔒 Admin</h1>
+      <p class="subtitle">Cross-Platform Social Posting</p>
+      <div style="margin-top:20px;">
+        <label for="token-input">Admin Token</label>
+        <input type="password" id="token-input" placeholder="Paste your ADMIN_TOKEN">
+        <button class="btn btn-gold" onclick="authenticate()" style="width:100%;">Enter</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dashboard -->
+  <div id="dashboard" class="hidden">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+      <div>
+        <h1>Cross-Platform Posting</h1>
+        <p class="subtitle">Compose once, post to Facebook, Instagram, TikTok, and Shopee.</p>
+      </div>
+      <button class="btn btn-ghost" onclick="logout()">Logout</button>
+    </div>
+
+    <div class="admin-nav">
+      <a href="/admin/videos.html">Videos &amp; Products</a>
+      <a href="/admin/social.html" class="active">Cross-Post</a>
+      <a href="/admin/contacts.html">Contacts &amp; Sequence</a>
+    </div>
+
+    <!-- Platform status -->
+    <h2>Platform Connections</h2>
+    <div class="platform-grid" id="platform-grid">
+      <div class="platform-card"><div class="icon">📘</div><div class="name">Facebook</div><div class="badge off">checking…</div></div>
+      <div class="platform-card"><div class="icon">📸</div><div class="name">Instagram</div><div class="badge off">checking…</div></div>
+      <div class="platform-card"><div class="icon">🎵</div><div class="name">TikTok</div><div class="badge off">checking…</div></div>
+      <div class="platform-card"><div class="icon">🛒</div><div class="name">Shopee</div><div class="badge manual">manual only</div></div>
+    </div>
+
+    <!-- Compose -->
+    <h2>Compose Post</h2>
+    <div class="compose">
+      <div class="form-row full">
+        <div>
+          <label>Message / Caption *</label>
+          <textarea id="c-message" placeholder="Write your post here… This text will be used for all platforms.&#10;&#10;Hashtags and emojis work on all platforms."></textarea>
+          <div style="display:flex;gap:12px;margin-top:6px;">
+            <span class="mono" style="font-size:11px;color:var(--text-2);" id="char-count">0 chars</span>
+            <span class="mono" style="font-size:11px;color:var(--text-2);">FB: 63,206 max · IG: 2,200 · TT: 150 (title)</span>
+          </div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div>
+          <label>Link / Product URL</label>
+          <input type="url" id="c-link" placeholder="https://riolendel.com/shop/ or affiliate link">
+        </div>
+        <div>
+          <label>Image URL (public)</label>
+          <input type="url" id="c-image" placeholder="https://... (required for IG photo posts)">
+        </div>
+      </div>
+      <div class="form-row">
+        <div>
+          <label>Video URL (public)</label>
+          <input type="url" id="c-video" placeholder="https://... (for IG Reels and TikTok)">
+        </div>
+        <div>
+          <label>TikTok Privacy (if posting video)</label>
+          <select id="c-privacy">
+            <option value="PUBLIC_TO_EVERYONE">Public</option>
+            <option value="MUTUAL_FOLLOW_FRIENDS">Friends</option>
+            <option value="FOLLOWER_OF_CREATOR">Followers</option>
+            <option value="SELF_ONLY" selected>Private (self only — for testing)</option>
+          </select>
+        </div>
+      </div>
+
+      <label style="margin-bottom:10px;">Post to</label>
+      <div class="platform-checks" id="platform-checks">
+        <label class="platform-check" data-platform="facebook">
+          <input type="checkbox" value="facebook">
+          <div class="dot"></div>
+          <span class="plabel">📘 Facebook</span>
+        </label>
+        <label class="platform-check" data-platform="instagram">
+          <input type="checkbox" value="instagram">
+          <div class="dot"></div>
+          <span class="plabel">📸 Instagram</span>
+        </label>
+        <label class="platform-check" data-platform="tiktok">
+          <input type="checkbox" value="tiktok">
+          <div class="dot"></div>
+          <span class="plabel">🎵 TikTok</span>
+        </label>
+        <label class="platform-check" data-platform="shopee">
+          <input type="checkbox" value="shopee">
+          <div class="dot"></div>
+          <span class="plabel">🛒 Shopee</span>
+        </label>
+      </div>
+
+      <!-- Preview -->
+      <div class="preview-row" id="preview-row"></div>
+
+      <div style="margin-top:16px;display:flex;gap:12px;align-items:center;">
+        <button class="btn btn-gold" id="post-btn" onclick="submitPost()">Post Now</button>
+        <span id="post-status" style="font-size:13px;color:var(--text-2);"></span>
+      </div>
+
+      <!-- Results -->
+      <div class="result-row hidden" id="results"></div>
+    </div>
+
+    <!-- History -->
+    <h2>Post History</h2>
+    <div class="history-list" id="history-list">
+      <div style="color:var(--text-2);font-size:13px;">Loading…</div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var TOKEN = '';
+var platformStatus = {};
+
+function toast(msg, isError){
+  var el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast' + (isError ? ' error' : '');
+  el.style.display = 'block';
+  setTimeout(function(){ el.style.display = 'none'; }, 4000);
+}
+
+function esc(s){ var d = document.createElement('div'); d.textContent = s||''; return d.innerHTML; }
+
+function authenticate(){
+  TOKEN = document.getElementById('token-input').value.trim();
+  if(!TOKEN){ toast('Enter your admin token.', true); return; }
+  fetch('/api/admin/social/status?token=' + encodeURIComponent(TOKEN))
+    .then(function(r){ if(!r.ok) throw new Error('bad'); return r.json(); })
+    .then(function(data){
+      document.getElementById('auth-gate').classList.add('hidden');
+      document.getElementById('dashboard').classList.remove('hidden');
+      platformStatus = data.platforms || {};
+      renderPlatformStatus();
+      loadHistory();
+    })
+    .catch(function(){ toast('Invalid token.', true); });
+}
+
+function logout(){
+  TOKEN = '';
+  document.getElementById('dashboard').classList.add('hidden');
+  document.getElementById('auth-gate').classList.remove('hidden');
+  document.getElementById('token-input').value = '';
+}
+
+function renderPlatformStatus(){
+  var icons = { facebook:'📘', instagram:'📸', tiktok:'🎵', shopee:'🛒' };
+  var names = { facebook:'Facebook', instagram:'Instagram', tiktok:'TikTok', shopee:'Shopee' };
+  var grid = document.getElementById('platform-grid');
+  grid.innerHTML = ['facebook','instagram','tiktok','shopee'].map(function(p){
+    var s = platformStatus[p] || {};
+    var mode = s.mode || 'not_configured';
+    var badgeClass = mode === 'api' ? 'api' : mode === 'manual' ? 'manual' : 'off';
+    var badgeText = mode === 'api' ? ('✓ ' + (s.via === 'buffer' ? 'Via Buffer' : 'API Connected')) : mode === 'manual' ? 'Manual / Copy' : 'Not Configured';
+    return '<div class="platform-card"><div class="icon">' + icons[p] + '</div><div class="name">' + names[p] + '</div><div class="badge ' + badgeClass + '">' + badgeText + '</div></div>';
+  }).join('');
+}
+
+// Platform checkboxes
+document.querySelectorAll('.platform-check').forEach(function(label){
+  label.addEventListener('click', function(e){
+    if(e.target.tagName === 'INPUT') return;
+    var cb = label.querySelector('input');
+    cb.checked = !cb.checked;
+    label.classList.toggle('checked', cb.checked);
+    updatePreview();
+  });
+  label.querySelector('input').addEventListener('change', function(){
+    label.classList.toggle('checked', this.checked);
+    updatePreview();
+  });
+});
+
+// Char counter
+document.getElementById('c-message').addEventListener('input', function(){
+  document.getElementById('char-count').textContent = this.value.length + ' chars';
+  updatePreview();
+});
+['c-link','c-image','c-video'].forEach(function(id){
+  document.getElementById(id).addEventListener('input', updatePreview);
+});
+
+function getSelected(){
+  var selected = [];
+  document.querySelectorAll('.platform-check input:checked').forEach(function(cb){ selected.push(cb.value); });
+  return selected;
+}
+
+function updatePreview(){
+  var msg = document.getElementById('c-message').value;
+  var link = document.getElementById('c-link').value;
+  var image = document.getElementById('c-image').value;
+  var video = document.getElementById('c-video').value;
+  var selected = getSelected();
+  var row = document.getElementById('preview-row');
+
+  if(selected.length === 0 || !msg.trim()){
+    row.innerHTML = '';
+    return;
+  }
+
+  var limits = { facebook: 63206, instagram: 2200, tiktok: 150, shopee: 2000 };
+  row.innerHTML = selected.map(function(p){
+    var content = msg;
+    if(p === 'tiktok') content = msg.slice(0, 150);
+    if(link && p !== 'tiktok') content += '\n\n' + link;
+    var len = content.length;
+    var max = limits[p] || 2000;
+    var extra = '';
+    if(p === 'instagram' && !image && !video) extra = '<div style="color:var(--red);font-size:11px;margin-top:4px;">⚠ IG requires an image or video URL</div>';
+    if(p === 'tiktok' && !video) extra = '<div style="color:var(--red);font-size:11px;margin-top:4px;">⚠ TikTok requires a video URL</div>';
+    if(p === 'shopee') extra = '<div style="color:var(--gold);font-size:11px;margin-top:4px;">📋 Will be copied — paste manually</div>';
+    return '<div class="preview-card"><div class="pname">' + p + '</div><div class="pcontent">' + esc(content) + '</div><div class="plimit">' + len + '/' + max + '</div>' + extra + '</div>';
+  }).join('');
+}
+
+async function submitPost(){
+  var msg = document.getElementById('c-message').value.trim();
+  var selected = getSelected();
+  if(!msg){ toast('Write a message first.', true); return; }
+  if(selected.length === 0){ toast('Select at least one platform.', true); return; }
+
+  var btn = document.getElementById('post-btn');
+  var status = document.getElementById('post-status');
+  btn.disabled = true;
+  status.textContent = 'Posting to ' + selected.join(', ') + '…';
+
+  try {
+    var res = await fetch('/api/admin/social/post?token=' + encodeURIComponent(TOKEN), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-admin-token': TOKEN },
+      body: JSON.stringify({
+        message: msg,
+        link: document.getElementById('c-link').value.trim() || null,
+        imageUrl: document.getElementById('c-image').value.trim() || null,
+        videoUrl: document.getElementById('c-video').value.trim() || null,
+        platforms: selected,
+        privacyLevel: document.getElementById('c-privacy').value,
+      })
+    });
+    var data = await res.json();
+    status.textContent = '';
+    btn.disabled = false;
+
+    if(!data.ok){
+      toast(data.error || 'Failed.', true);
+      return;
+    }
+
+    // Show results
+    var resultsDiv = document.getElementById('results');
+    resultsDiv.classList.remove('hidden');
+    resultsDiv.innerHTML = '<h2 style="margin:0 0 8px;">Results</h2>' +
+      Object.keys(data.results).map(function(p){
+        var r = data.results[p];
+        var cls = r.ok ? (r.manual ? 'manual-ok' : 'success') : 'fail';
+        var icon = r.ok ? (r.manual ? '📋' : '✅') : '❌';
+        var detail = r.ok
+          ? (r.manual
+            ? '<button class="copy-btn" onclick="copyText(this)" data-text="' + esc(r.copyText || '') + '">Copy text</button> ' + esc(r.note || '')
+            : 'Posted! ID: ' + (r.postId || r.publishId || '—') + (r.note ? ' · ' + r.note : ''))
+          : esc(r.error || 'Unknown error');
+        return '<div class="result-item ' + cls + '"><span class="rplatform">' + icon + ' ' + p + '</span><span>' + detail + '</span></div>';
+      }).join('');
+
+    loadHistory();
+    toast('Done! Check results below.');
+  } catch(err) {
+    status.textContent = '';
+    btn.disabled = false;
+    toast('Network error: ' + err.message, true);
+  }
+}
+
+function copyText(btn){
+  var text = btn.getAttribute('data-text');
+  navigator.clipboard.writeText(text).then(function(){ toast('Copied to clipboard!'); });
+}
+
+function loadHistory(){
+  fetch('/api/admin/social/history?token=' + encodeURIComponent(TOKEN))
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      var list = document.getElementById('history-list');
+      var posts = data.posts || [];
+      if(posts.length === 0){
+        list.innerHTML = '<div style="color:var(--text-2);font-size:13px;">No posts yet.</div>';
+        return;
+      }
+      list.innerHTML = posts.map(function(p){
+        var d = new Date(p.created_at).toLocaleString();
+        var platforms = p.platforms || {};
+        var badges = Object.keys(platforms).map(function(pl){
+          var r = platforms[pl];
+          var color = r.ok ? (r.manual ? 'var(--gold)' : 'var(--green)') : 'var(--red)';
+          var label = r.ok ? (r.manual ? '📋' : '✅') : '❌';
+          return '<span style="color:' + color + ';background:rgba(255,255,255,0.05);">' + label + ' ' + pl + '</span>';
+        }).join('');
+        return '<div class="history-item">' +
+          '<div class="hmeta"><span>ID: ' + p.id + '</span><span>' + d + '</span></div>' +
+          '<div class="hmsg">' + esc((p.message || '').slice(0, 200)) + (p.message && p.message.length > 200 ? '…' : '') + '</div>' +
+          '<div class="hplatforms">' + badges + '</div>' +
+        '</div>';
+      }).join('');
+    });
+}
+
+// Auto-auth from hash
+(function(){
+  if(location.hash && location.hash.length > 1){
+    document.getElementById('token-input').value = location.hash.slice(1);
+    authenticate();
+  }
+})();
+</script>
+</body>
+</html>

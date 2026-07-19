@@ -1,0 +1,5 @@
+# Tells Railway's Nixpacks builder to install ffmpeg alongside Node.
+# Without this, /api/admin/videos/upload will fail with "ffmpeg not found"
+# because Railway's default Node image doesn't include it.
+[phases.setup]
+nixPkgs = ["...", "ffmpeg"]
