@@ -73,16 +73,42 @@ function smsWelcomeStep(fullName) {
   };
 }
 
+/**
+ * SMS for CSV-imported contacts (existing customers/leads pulled in
+ * via /admin/contacts.html) — NOT the live opt-in form. These people
+ * haven't actively signed up on riolendel.com yet, so the message
+ * introduces the site instead of thanking them for something they
+ * didn't do, and invites them to opt in for the free PDF + calculator
+ * rather than assuming consent already given.
+ */
+function smsIntroStep(fullName) {
+  const firstName = (fullName || '').split(' ')[0] || 'there';
+  return {
+    step: 1,
+    offsetHours: 0,
+    subject: null,
+    // Kept plain ASCII (no em dash/curly quotes) and under 160 chars so
+    // this bills as ONE Semaphore SMS segment, not several — special
+    // characters push SMS into Unicode encoding, which caps a segment
+    // at 67 chars instead of 160 and can silently multiply the cost.
+    body: `Hi ${firstName}! Riolendel here - gold education for PH families. Free Gold Guide + price calculator: ${SITE_URL.replace(/^https?:\/\//, '')}. Reply STOP to opt out.`,
+  };
+}
+
 // ---------- Enrollment ----------
 
 /**
  * Enroll one contact into the drip. `channel` is 'email' | 'sms' | 'both'
  * (matches the optins.channel convention already used across the app).
  * `startAt` (Date, optional) lets CSV imports pick a send time instead
- * of firing immediately — defaults to now.
+ * of firing immediately — defaults to now. `batchSource` also picks
+ * which SMS content is used: 'csv_import' contacts get an introduction
+ * (they haven't opted in live), everyone else gets the welcome text
+ * (they just did).
  */
 async function enrollContact({ fullName, email, phone, channel }, { startAt, batchSource } = {}) {
   const base = startAt ? new Date(startAt) : new Date();
+  const source = batchSource || 'landing_page';
   const enqueued = [];
 
   if ((channel === 'email' || channel === 'both') && email) {
@@ -91,19 +117,19 @@ async function enrollContact({ fullName, email, phone, channel }, { startAt, bat
       const result = await db.enqueueSequenceMessage({
         fullName, email, phone: null, channel: 'email',
         step: step.step, subject: step.subject, body: step.body,
-        scheduledFor, batchSource: batchSource || 'landing_page',
+        scheduledFor, batchSource: source,
       });
       if (result.persisted) enqueued.push(result.id);
     }
   }
 
   if ((channel === 'sms' || channel === 'both') && phone) {
-    const step = smsWelcomeStep(fullName);
+    const step = source === 'csv_import' ? smsIntroStep(fullName) : smsWelcomeStep(fullName);
     const scheduledFor = new Date(base.getTime() + step.offsetHours * 60 * 60 * 1000);
     const result = await db.enqueueSequenceMessage({
       fullName, email: null, phone, channel: 'sms',
       step: step.step, subject: null, body: step.body,
-      scheduledFor, batchSource: batchSource || 'landing_page',
+      scheduledFor, batchSource: source,
     });
     if (result.persisted) enqueued.push(result.id);
   }
