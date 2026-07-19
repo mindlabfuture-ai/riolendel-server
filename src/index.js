@@ -482,6 +482,22 @@ app.post('/api/admin/sequence/run-now', async (req, res) => {
   res.json({ ok: true, ...result });
 });
 
+// Catches errors thrown by middleware before a route handler runs —
+// most importantly multer's fileFilter rejections and file-size-limit
+// errors on the video/CSV upload routes, which otherwise bypass our
+// JSON responses entirely and fall through to Express's default HTML
+// error page. Must be registered last, after every other app.use/route.
+app.use((err, req, res, next) => {
+  if (err instanceof multer.MulterError) {
+    return res.status(400).json({ ok: false, error: `Upload error: ${err.message}` });
+  }
+  if (err) {
+    console.error('[server] Unhandled error:', err.message);
+    return res.status(err.status || 500).json({ ok: false, error: err.message || 'Internal server error.' });
+  }
+  next();
+});
+
 async function start() {
   await db.init();
   await goldPrice.init();
