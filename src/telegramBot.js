@@ -7,8 +7,12 @@
  * and queue candidates.
  *
  * Commands:
- *   /scrape <keyword>   — search for candidate videos, message back a
- *                          ranked list of links for you to review
+ *   /scrape <keyword>   — search TikTok for candidate videos, biased
+ *                          toward TikTok Shop-tagged content, message
+ *                          back a ranked list for you to review. Note:
+ *                          commission status can't be auto-verified —
+ *                          check TikTok Shop's Affiliate Center and
+ *                          Shopee's dashboard before downloading.
  *   /queue <url>         — save a specific link into the review queue
  *                          as "queued" (e.g. one you found yourself)
  *   /list                — show what's currently queued
@@ -67,11 +71,11 @@ function esc(str) {
 
 async function handleScrape(chatId, keyword) {
   if (!keyword) {
-    await sendMessage(chatId, 'Usage: <code>/scrape 18k gold pawnable</code> — tell me what to search for.');
+    await sendMessage(chatId, 'Usage: <code>/scrape 18k gold pawnable</code> — tell me what to search for on TikTok.');
     return;
   }
 
-  await sendMessage(chatId, `🔍 Searching for videos matching "<b>${esc(keyword)}</b>"…`);
+  await sendMessage(chatId, `🔍 Searching TikTok for "<b>${esc(keyword)}</b>"…`);
 
   const search = await videoSearch.searchVideos(keyword, { limit: 8 });
 
@@ -91,7 +95,7 @@ async function handleScrape(chatId, keyword) {
   }
 
   if (search.results.length === 0) {
-    await sendMessage(chatId, `No results found for "<b>${esc(keyword)}</b>". Try a different keyword.`);
+    await sendMessage(chatId, `No TikTok results found for "<b>${esc(keyword)}</b>". Try a different keyword.`);
     return;
   }
 
@@ -114,13 +118,18 @@ async function handleScrape(chatId, keyword) {
   }
 
   const lines = queued.map((r, i) =>
-    `${i + 1}. <b>${esc(r.title)}</b>\n   ${esc(r.source)} · <a href="${esc(r.link)}">open</a> · queue #${r.id}`
+    `${i + 1}. <b>${esc(r.title)}</b>\n   TikTok · <a href="${esc(r.link)}">open</a> · queue #${r.id}`
   ).join('\n\n');
+
+  const verifyLines = (search.verificationLinks || [])
+    .map(v => `• <a href="${esc(v.url)}">${esc(v.label)}</a>`)
+    .join('\n');
 
   await sendMessage(
     chatId,
     `✅ Found ${queued.length} candidate(s) for "<b>${esc(keyword)}</b>" — saved to your review queue:\n\n${lines}\n\n` +
-    `Review these in <code>/admin/videos.html</code> (Videos tab, filter: Queued), or open each link, download the ones worth using with SnapTik/SSSTik, then upload in the Warm-Up &amp; Schedule tab.`
+    `<b>⚠️ Before downloading any of these:</b> search can't confirm commission status — that only lives inside each platform's own dashboard. Check the product has an active commission here:\n${verifyLines}\n\n` +
+    `Once confirmed, download with SnapTik/SSSTik and upload in <code>/admin/videos.html</code> → Warm-Up &amp; Schedule tab.`
   );
 }
 
@@ -203,7 +212,7 @@ async function handleHelp(chatId) {
   await sendMessage(
     chatId,
     `<b>Riolendel Scraper Bot</b>\n\n` +
-    `<code>/scrape 18k gold pawnable</code>\n  Search for candidate videos matching a keyword. Results are saved to your review queue, not downloaded.\n\n` +
+    `<code>/scrape 18k gold pawnable</code>\n  Search TikTok for candidate videos, biased toward TikTok Shop-tagged content. Results are saved to your review queue, not downloaded. Commission status still needs manual verification in TikTok Shop's Affiliate Center and Shopee's affiliate dashboard.\n\n` +
     `<code>/queue &lt;url&gt;</code>\n  Manually add a specific video link you found yourself to the queue.\n\n` +
     `<code>/list</code>\n  Show what's currently in the queue.\n\n` +
     `<code>/status</code>\n  Health check — what's configured, what's not, queue and schedule counts.\n\n` +

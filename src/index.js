@@ -15,6 +15,7 @@ const videoScraper = require('./videoScraper');
 const socialPoster = require('./socialPoster');
 const bufferPoster = require('./bufferPoster');
 const videoProcessor = require('./videoProcessor');
+const shopeeDownloader = require('./shopeeDownloader');
 const scheduler = require('./scheduler');
 const telegramBot = require('./telegramBot');
 const sequences = require('./sequences');
@@ -340,6 +341,37 @@ app.post('/api/admin/videos/upload', upload.single('video'), async (req, res) =>
     fs.unlink(req.file.path, () => {});
     console.error('[admin] Video processing failed:', err.message);
     res.status(500).json({ ok: false, error: 'Video processing failed — check server logs (is ffmpeg installed?).' });
+  }
+});
+
+// ---------- Admin: download a Shopee video from a pasted link ----------
+// Admin pastes ONE Shopee product/video URL — server fetches that page,
+// extracts the embedded video file, downloads it, and extracts JPEG
+// frames the same way the file-upload route does. One link at a time,
+// on demand — this is not a crawler. See src/shopeeDownloader.js for
+// the honest caveat about how fragile page-scraping can be.
+app.post('/api/admin/videos/download-shopee', async (req, res) => {
+  if (!requireAdmin(req, res)) return;
+  const { url, frameCount } = req.body;
+  if (!url) return res.status(400).json({ ok: false, error: 'Pass a Shopee URL in the "url" field.' });
+
+  const count = frameCount ? Math.max(2, Math.min(4, parseInt(frameCount))) : 3;
+
+  const downloadResult = await shopeeDownloader.downloadFromShopeeUrl(url);
+  if (!downloadResult.ok) {
+    return res.status(422).json({ ok: false, error: downloadResult.error });
+  }
+
+  try {
+    const frames = await videoProcessor.extractFrames(downloadResult.video.filePath, { count });
+    res.json({
+      ok: true,
+      video: { url: downloadResult.video.url },
+      frames: frames.map(f => ({ url: f.publicUrl, timestamp: f.timestamp })),
+    });
+  } catch (err) {
+    console.error('[admin] Frame extraction failed for Shopee download:', err.message);
+    res.status(500).json({ ok: false, error: 'Video downloaded but frame extraction failed — check server logs (is ffmpeg installed?).' });
   }
 });
 

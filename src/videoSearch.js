@@ -1,12 +1,24 @@
 /**
- * Video Search — finds publicly discoverable videos/posts matching a
+ * Video Search — finds publicly discoverable TikTok videos matching a
  * keyword (e.g. "18k gold pawnable"), for human review. This does NOT
  * download or scrape any video content — it only returns links, titles,
  * and snippets, the same as a search engine results page would.
  *
+ * Scoped to TikTok only, biased toward TikTok Shop-tagged content (videos
+ * with a product attached via TikTok Shop are inherently commission-
+ * eligible — that's how the creator program works).
+ *
+ * IMPORTANT — "verified commission" isn't something a web search can
+ * check. Whether a specific product actually has an active commission
+ * on TikTok Shop or Shopee lives inside each platform's own affiliate
+ * dashboard, not in public search results. So this module surfaces
+ * candidates; a manual check in TikTok Shop's Affiliate Center and
+ * Shopee's Affiliate dashboard is still required before you queue or
+ * download anything — same as verifying rights/relevance already was.
+ *
  * Provider: Serper.dev (a thin wrapper around Google Search results,
  * cheap — ~$0.001/search on the free-to-start plan). Swap in any other
- * provider by changing searchWeb() below; the rest of the pipeline
+ * provider by changing searchVideos() below; the rest of the pipeline
  * (Telegram formatting, DB queueing) doesn't care which one you use.
  *
  * If no SEARCH_API_KEY is configured, falls back to returning ready-
@@ -17,18 +29,27 @@
 
 const SERPER_URL = 'https://google.serper.dev/search';
 
+// Where to manually confirm a product's commission is actually live,
+// per platform — these are reference links, not search results.
+const VERIFICATION_LINKS = [
+  { label: 'TikTok Shop Affiliate Center (check commission)', url: 'https://affiliate.tiktokshop.com' },
+  { label: 'Shopee Affiliate Dashboard (check commission)', url: 'https://affiliate.shopee.ph' },
+];
+
 function buildManualSearchUrls(keyword) {
   const q = encodeURIComponent(keyword);
   return [
     { label: 'TikTok search', url: `https://www.tiktok.com/search?q=${q}` },
-    { label: 'Shopee search', url: `https://shopee.ph/search?keyword=${q}` },
+    { label: 'TikTok search (Shop-tagged)', url: `https://www.tiktok.com/search?q=${encodeURIComponent(keyword + ' tiktok shop')}` },
     { label: 'Google (site:tiktok.com)', url: `https://www.google.com/search?q=site:tiktok.com+${q}` },
+    ...VERIFICATION_LINKS,
   ];
 }
 
 /**
- * Search the web for a keyword, biased toward TikTok/Shopee results.
- * Returns { ok, results: [{title, link, snippet, source}], manual }.
+ * Search TikTok for a keyword, biased toward TikTok Shop-tagged content.
+ * Returns { ok, results: [{title, link, snippet, source}], manual,
+ * verificationLinks }.
  */
 async function searchVideos(keyword, { limit = 8 } = {}) {
   const apiKey = process.env.SEARCH_API_KEY;
@@ -47,33 +68,35 @@ async function searchVideos(keyword, { limit = 8 } = {}) {
   }
 
   try {
-    // Run two queries: one biased to TikTok, one to Shopee, merge results.
-    const queries = [
-      `site:tiktok.com ${cleanKeyword}`,
-      `site:shopee.ph ${cleanKeyword}`,
-    ];
+    // TikTok only. Biasing the query toward "tiktok shop" surfaces
+    // Shop-tagged videos more often — those are the ones with an
+    // actual commission structure attached, as opposed to a random
+    // TikTok video that merely shows gold jewelry with no product link.
+    const q = `site:tiktok.com ${cleanKeyword} tiktok shop`;
 
-    const allResults = [];
-    for (const q of queries) {
-      const res = await fetch(SERPER_URL, {
-        method: 'POST',
-        headers: { 'X-API-KEY': apiKey, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ q, num: Math.ceil(limit / queries.length) }),
-      });
-      if (!res.ok) continue;
-      const data = await res.json();
-      const organic = data.organic || [];
-      for (const item of organic) {
-        allResults.push({
-          title: item.title || '(untitled)',
-          link: item.link,
-          snippet: item.snippet || '',
-          source: /tiktok\.com/i.test(item.link) ? 'tiktok' : /shopee\./i.test(item.link) ? 'shopee' : 'other',
-        });
-      }
+    const res = await fetch(SERPER_URL, {
+      method: 'POST',
+      headers: { 'X-API-KEY': apiKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ q, num: limit }),
+    });
+
+    if (!res.ok) {
+      return { ok: false, error: `Search request failed (${res.status}).` };
     }
 
-    return { ok: true, manual: false, results: allResults.slice(0, limit) };
+    const data = await res.json();
+    const organic = data.organic || [];
+    const results = organic
+      .filter(item => /tiktok\.com/i.test(item.link || ''))
+      .map(item => ({
+        title: item.title || '(untitled)',
+        link: item.link,
+        snippet: item.snippet || '',
+        source: 'tiktok',
+      }))
+      .slice(0, limit);
+
+    return { ok: true, manual: false, results, verificationLinks: VERIFICATION_LINKS };
   } catch (err) {
     return { ok: false, error: `Search failed: ${err.message}` };
   }
