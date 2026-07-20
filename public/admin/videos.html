@@ -283,7 +283,7 @@
     <div id="panel-campaigns" class="hidden">
       <h2>1. Get a Video → Auto-Extract Frames</h2>
       <div class="form-section">
-        <p class="help" style="margin-bottom:12px;">Upload a video file, OR paste a Shopee product/video link and let the server download it directly — either way, 2–4 evenly-spaced JPEG stills get extracted automatically using ffmpeg.</p>
+        <p class="help" style="margin-bottom:12px;">Upload a video file you already have, OR upload a product photo and let AI generate a showcase video from it — either way, 2–4 evenly-spaced JPEG stills get extracted automatically using ffmpeg. Generated videos have no watermark, unlike reposting Shopee/TikTok content directly.</p>
 
         <div class="form-row full">
           <div>
@@ -313,13 +313,44 @@
 
         <div class="form-row full">
           <div>
-            <label>Option B — Paste a Shopee Link</label>
-            <input type="url" id="shopee-url" placeholder="https://shopee.ph/product-name-i.123456.789012">
-            <p class="help">One link at a time. Server fetches the page, finds the video, downloads it. If Shopee changed their page layout since this was built, this may fail — fall back to Option A with a manually-downloaded file in that case.</p>
+            <label>Option B — Product Shot Video Builder (AI)</label>
+            <input type="file" id="gen-image" accept="image/jpeg,image/png,image/webp">
+            <p class="help">Upload a clean product photo (good lighting, plain background works best). Each preset below locks the product in place and only moves the camera/lighting around it — this reduces (but does not eliminate) the risk of the AI subtly altering the product itself. <b style="color:var(--gold);">Always compare the generated video against your original photo before using it</b> — if the product looks different, don't post it.</p>
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label>Shot Type</label>
+            <select id="gen-shottype">
+              <option value="orbit">360° Orbit (camera circles fixed product)</option>
+              <option value="zoom">Slow Zoom (camera pushes in on fixed product)</option>
+              <option value="light_sweep">Light Sweep (light moves, product still)</option>
+              <option value="tilt">Gentle Tilt (subtle angle shift, product still)</option>
+            </select>
+          </div>
+          <div>
+            <label>Extra notes (optional — added to the preset, doesn't replace it)</label>
+            <input type="text" id="gen-prompt" placeholder="e.g. warm gold tone, emphasize the pendant">
           </div>
         </div>
         <div style="display:flex;align-items:flex-end;">
-          <button class="btn btn-gold" onclick="downloadFromShopee()" id="shopee-download-btn">Download from Shopee &amp; Extract Frames</button>
+          <button class="btn btn-gold" onclick="generateFromImage()" id="generate-btn">Generate Video &amp; Extract Frames</button>
+        </div>
+        <p class="help" id="generate-status" style="margin-top:8px;"></p>
+
+        <!-- Side-by-side QA check: original photo vs. generated video -->
+        <div id="qa-compare" style="display:none;margin-top:20px;padding:16px;background:var(--surface-2);border:1px solid var(--border);">
+          <p class="help" style="margin:0 0 10px;color:var(--gold);"><b>Quality check:</b> does the product below match your original photo exactly? If anything looks different (shape, color, gemstones, proportions), don't use this video — try a different shot type or regenerate.</p>
+          <div style="display:flex;gap:16px;flex-wrap:wrap;">
+            <div>
+              <div class="help" style="margin-bottom:6px;">Original photo</div>
+              <img id="qa-original" style="width:220px;height:220px;object-fit:cover;border:1px solid var(--border);">
+            </div>
+            <div>
+              <div class="help" style="margin-bottom:6px;">Generated video (first frame)</div>
+              <img id="qa-generated" style="width:220px;height:220px;object-fit:cover;border:1px solid var(--border);">
+            </div>
+          </div>
         </div>
 
         <div id="upload-progress" class="help"></div>
@@ -327,6 +358,7 @@
       </div>
 
       <h2>2. Build Warm-Up Campaign</h2>
+
 
       <div class="form-section">
         <p class="help" style="margin-bottom:12px;">
@@ -639,30 +671,53 @@ function uploadAndExtract(){
   });
 }
 
-function downloadFromShopee(){
-  var url = document.getElementById('shopee-url').value.trim();
-  if(!url){ toast('Paste a Shopee link first.', true); return; }
+function generateFromImage(){
+  var fileInput = document.getElementById('gen-image');
+  var file = fileInput.files[0];
+  if(!file){ toast('Choose a product photo first.', true); return; }
 
   var frameCount = document.getElementById('cam-framecount').value;
-  var btn = document.getElementById('shopee-download-btn');
+  var shotType = document.getElementById('gen-shottype').value;
+  var customPrompt = document.getElementById('gen-prompt').value.trim();
+  var btn = document.getElementById('generate-btn');
   var progress = document.getElementById('upload-progress');
+  var statusEl = document.getElementById('generate-status');
   btn.disabled = true;
-  progress.textContent = 'Fetching the Shopee page and downloading the video — this can take a moment…';
+  progress.textContent = 'Generating video from your photo — this typically takes 1-3 minutes, please wait…';
+  statusEl.textContent = '';
+  document.getElementById('qa-compare').style.display = 'none';
 
-  fetch('/api/admin/videos/download-shopee?token=' + encodeURIComponent(TOKEN), {
+  // Keep a local preview of the original photo for the side-by-side QA check
+  var originalPreviewUrl = URL.createObjectURL(file);
+
+  var formData = new FormData();
+  formData.append('image', file);
+  formData.append('frameCount', frameCount);
+  formData.append('shotType', shotType);
+  if(customPrompt) formData.append('customPrompt', customPrompt);
+
+  fetch('/api/admin/videos/generate?token=' + encodeURIComponent(TOKEN), {
     method: 'POST',
-    headers: apiHeaders(),
-    body: JSON.stringify({ url: url, frameCount: frameCount }),
+    headers: { 'x-admin-token': TOKEN }, // don't set Content-Type — browser sets multipart boundary
+    body: formData,
   })
   .then(function(r){ return r.json(); })
   .then(function(data){
     btn.disabled = false;
-    if(!data.ok){ progress.textContent = ''; toast(data.error || 'Shopee download failed.', true); return; }
+    if(!data.ok){ progress.textContent = ''; toast(data.error || 'Video generation failed.', true); return; }
     extractedFrames = data.frames || [];
     extractedVideoUrl = data.video.url;
     progress.textContent = 'Done — ' + extractedFrames.length + ' frame(s) extracted. Video saved at ' + extractedVideoUrl;
     renderFramePreview();
-    toast('Downloaded from Shopee! Scroll down to build your campaign.');
+
+    // Populate the QA comparison so admin can visually verify accuracy
+    if(extractedFrames.length > 0){
+      document.getElementById('qa-original').src = originalPreviewUrl;
+      document.getElementById('qa-generated').src = extractedFrames[0].url;
+      document.getElementById('qa-compare').style.display = 'block';
+    }
+
+    toast('Video generated — check the quality comparison before using it!');
   })
   .catch(function(err){
     btn.disabled = false;

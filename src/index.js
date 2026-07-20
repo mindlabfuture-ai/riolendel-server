@@ -15,7 +15,7 @@ const videoScraper = require('./videoScraper');
 const socialPoster = require('./socialPoster');
 const bufferPoster = require('./bufferPoster');
 const videoProcessor = require('./videoProcessor');
-const shopeeDownloader = require('./shopeeDownloader');
+const videoGenerator = require('./videoGenerator');
 const scheduler = require('./scheduler');
 const telegramBot = require('./telegramBot');
 const sequences = require('./sequences');
@@ -69,6 +69,16 @@ const uploadCsv = multer({
   fileFilter: (req, file, cb) => {
     const ok = /\.csv$/i.test(file.originalname) || /csv|text\/plain/.test(file.mimetype);
     cb(ok ? null : new Error('Only .csv files are accepted.'), ok);
+  },
+});
+
+// Product photos for AI video generation (Runway image-to-video).
+const uploadImage = multer({
+  dest: os.tmpdir(),
+  limits: { fileSize: 20 * 1024 * 1024, files: 4 }, // 20MB/file cap, up to 4 photos
+  fileFilter: (req, file, cb) => {
+    const ok = /^image\//.test(file.mimetype) || /\.(jpg|jpeg|png|webp)$/i.test(file.originalname);
+    cb(ok ? null : new Error('Only image files are accepted (jpg, png, webp).'), ok);
   },
 });
 
@@ -332,6 +342,13 @@ app.post('/api/admin/videos/upload', upload.single('video'), async (req, res) =>
   try {
     const result = await videoProcessor.processUploadedVideo(req.file.path, req.file.originalname, { frameCount });
     fs.unlink(req.file.path, () => {}); // clean up multer's temp copy
+    if (result.frames.length === 0) {
+      return res.status(422).json({
+        ok: false,
+        error: 'Video was saved but ffmpeg could not extract any frames from it — the file may be corrupted, an unsupported format, or ffmpeg may not be installed. Check server logs for the specific ffmpeg error.',
+        video: { url: result.video.publicUrl },
+      });
+    }
     res.json({
       ok: true,
       video: { url: result.video.publicUrl },
@@ -344,34 +361,59 @@ app.post('/api/admin/videos/upload', upload.single('video'), async (req, res) =>
   }
 });
 
-// ---------- Admin: download a Shopee video from a pasted link ----------
-// Admin pastes ONE Shopee product/video URL — server fetches that page,
-// extracts the embedded video file, downloads it, and extracts JPEG
-// frames the same way the file-upload route does. One link at a time,
-// on demand — this is not a crawler. See src/shopeeDownloader.js for
-// the honest caveat about how fragile page-scraping can be.
-app.post('/api/admin/videos/download-shopee', async (req, res) => {
+
+// ---------- Admin: Product Shot Video Builder ----------
+// Admin uploads ONE product photo + picks a locked-product shot preset
+// (camera orbits/zooms/tilts around a FIXED product — the product
+// itself is instructed not to change). Server generates via Runway,
+// downloads it, and extracts JPEG frames the same way every other
+// video source does. Replaces reposting scraped Shopee/TikTok videos
+// (platform watermarks) and replaces freeform AI prompts (which came
+// back with the product itself visibly altered in earlier testing).
+//
+// Returns sourceImageUrl alongside the result so the admin UI can show
+// the original photo next to the generated video for a quick "does the
+// product still look right" check before it's ever used in a campaign.
+app.get('/api/admin/videos/shot-presets', (req, res) => {
   if (!requireAdmin(req, res)) return;
-  const { url, frameCount } = req.body;
-  if (!url) return res.status(400).json({ ok: false, error: 'Pass a Shopee URL in the "url" field.' });
+  res.json({ ok: true, presets: videoGenerator.getPresets() });
+});
 
-  const count = frameCount ? Math.max(2, Math.min(4, parseInt(frameCount))) : 3;
+app.post('/api/admin/videos/generate', uploadImage.single('image'), async (req, res) => {
+  if (!requireAdmin(req, res)) return;
+  if (!req.file) return res.status(400).json({ ok: false, error: 'No image uploaded (field name must be "image").' });
 
-  const downloadResult = await shopeeDownloader.downloadFromShopeeUrl(url);
-  if (!downloadResult.ok) {
-    return res.status(422).json({ ok: false, error: downloadResult.error });
-  }
+  const shotType = req.body.shotType || 'orbit';
+  const customPrompt = req.body.customPrompt || undefined;
+  const frameCount = req.body.frameCount ? Math.max(2, Math.min(4, parseInt(req.body.frameCount))) : 3;
 
   try {
-    const frames = await videoProcessor.extractFrames(downloadResult.video.filePath, { count });
+    const genResult = await videoGenerator.generateVideoFromImage(req.file.path, req.file.originalname, { shotType, customPrompt });
+    fs.unlink(req.file.path, () => {}); // clean up multer's temp copy
+
+    if (!genResult.ok) {
+      return res.status(422).json({ ok: false, error: genResult.error });
+    }
+
+    const frames = await videoProcessor.extractFrames(genResult.video.filePath, { count: frameCount });
+    if (frames.length === 0) {
+      return res.status(422).json({
+        ok: false,
+        error: 'Video was generated but ffmpeg could not extract frames from it — check server logs for the ffmpeg error.',
+        video: { url: genResult.video.url },
+      });
+    }
+
     res.json({
       ok: true,
-      video: { url: downloadResult.video.url },
+      video: { url: genResult.video.url },
+      sourceImageUrl: genResult.sourceImageUrl,
       frames: frames.map(f => ({ url: f.publicUrl, timestamp: f.timestamp })),
     });
   } catch (err) {
-    console.error('[admin] Frame extraction failed for Shopee download:', err.message);
-    res.status(500).json({ ok: false, error: 'Video downloaded but frame extraction failed — check server logs (is ffmpeg installed?).' });
+    fs.unlink(req.file.path, () => {});
+    console.error('[admin] Video generation failed:', err.message);
+    res.status(500).json({ ok: false, error: `Video generation failed: ${err.message}` });
   }
 });
 

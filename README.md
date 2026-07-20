@@ -112,17 +112,30 @@ any list you didn't collect direct consent for.
 
 Three admin-only tools live under `/admin/` (protected by `ADMIN_TOKEN`):
 
-- **`/admin/videos.html`** — add TikTok/Shopee video references and
-  18K gold affiliate products (shown on the public `/shop/` page). Also
-  has the **Warm-Up & Schedule** tab: upload a downloaded video, the
-  server extracts 2–4 JPEG stills via ffmpeg, and you can schedule a
-  two-phase campaign — stills post immediately (no link, just to warm
-  up engagement), then the real video + your affiliate link auto-posts
-  1–2 days later via `src/scheduler.js`. This matters because Shopee/
-  TikTok Shop affiliate links carry session-timed tracking tokens that
-  can expire before an immediate post gets real engagement.
+- **`/admin/videos.html`** — add TikTok video references (for content
+  research, not downloading) and 18K gold affiliate products (shown on
+  the public `/shop/` page). Also has the **Warm-Up & Schedule** tab,
+  with two ways to get a video: upload a file you already have, or
+  generate one from a product photo via Runway's image-to-video API
+  (`src/videoGenerator.js`) — no watermark, since it's generated fresh
+  rather than reposted from Shopee/TikTok Shop, which stamp their own
+  branding onto every video. Either path extracts 2–4 JPEG stills via
+  ffmpeg, and you can schedule a two-phase campaign — stills post
+  immediately (no link, just to warm up engagement), then the real
+  video + your affiliate link auto-posts 1–2 days later via
+  `src/scheduler.js`. This matters because Shopee/TikTok Shop affiliate
+  links carry session-timed tracking tokens that can expire before an
+  immediate post gets real engagement.
 - **`/admin/social.html`** — one-off cross-posting to Facebook,
   Instagram, TikTok, and Shopee from a single compose box.
+
+**Runway API note:** this integration was built without live access to
+test against Runway's current API, since exact field names can shift
+between model generations. If video generation fails with a schema
+error, check `https://docs.dev.runwayml.com` against the request shape
+in `src/videoGenerator.js`'s `createTask()` and adjust field
+names/enums to match — the polling/download logic around it shouldn't
+need to change.
 
 **ffmpeg requirement:** frame extraction needs `ffmpeg`/`ffprobe` on
 the host. This repo includes `nixpacks.toml` so Railway's builder
