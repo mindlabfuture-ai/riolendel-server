@@ -115,7 +115,9 @@
   .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold-dim);}
 
   header{background:var(--ink);color:var(--text-dark-1);position:relative;}
-  .hero-bg{position:absolute;inset:0;background-image:linear-gradient(105deg,rgba(23,19,16,0.94) 15%,rgba(23,19,16,0.75) 55%,rgba(23,19,16,0.5) 100%),url('https://images.unsplash.com/photo-1691404801714-07dab9c4dbce?w=1800&q=70&auto=format&fit=crop');background-size:cover;background-position:center;}
+  .hero-bg{position:absolute;inset:0;overflow:hidden;background:var(--ink);}
+  .hero-bg video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+  .hero-bg::after{content:"";position:absolute;inset:0;background-image:linear-gradient(105deg,rgba(23,19,16,0.94) 15%,rgba(23,19,16,0.75) 55%,rgba(23,19,16,0.5) 100%);}
   .hero{position:relative;z-index:1;}
   .nav{display:flex;align-items:center;justify-content:space-between;padding:22px 32px;max-width:1080px;margin:0 auto;position:relative;z-index:1;}
   .logo-img{height:38px;width:auto;display:block;}
@@ -191,6 +193,7 @@
   .shop-card .media img, .shop-card .media video{width:100%;height:100%;object-fit:cover;display:block;}
   .shop-card .media video{position:absolute;top:0;left:0;opacity:0;transition:opacity .2s;}
   .shop-card:hover .media video{opacity:1;}
+  .shop-card .media.is-playing video{opacity:1;}
   .shop-card .media video.is-playing{opacity:1;}
   .shop-card .card-body{padding:14px 16px;}
   .shop-card .card-cat{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.06em;text-transform:uppercase;color:var(--gold-dim);}
@@ -300,7 +303,14 @@
 <body>
 
 <header>
-  <div class="hero-bg"></div>
+  <div class="hero-bg">
+    <!-- Update HERO_VIDEO_SRC below once uploaded to Bunny — same
+         MEDIA_BASE pattern as the shop videos. Poster shows instantly
+         while the video loads, and stays if video fails for any reason. -->
+    <video autoplay muted loop playsinline
+      poster="https://images.unsplash.com/photo-1691404801714-07dab9c4dbce?w=1800&q=70&auto=format&fit=crop"
+      src="https://riolendel-shop.b-cdn.net/hero-video.mp4"></video>
+  </div>
   <div class="nav">
     <img src="assets/logo-nav.png" alt="Riolendel" class="logo-img">
     <div style="display:flex;align-items:center;gap:20px;">
@@ -734,9 +744,16 @@
       entries.forEach(entry => {
         const video = entry.target;
         if(entry.isIntersecting){
-          video.classList.add('is-playing');
-          video.play().catch(() => {});
+          clearTimeout(video._autoplayTimer);
+          // Wait 5s before autoplaying — a quick scroll-past shouldn't
+          // trigger playback at all. Cancelled below if it scrolls out
+          // of view before the delay elapses.
+          video._autoplayTimer = setTimeout(() => {
+            video.classList.add('is-playing');
+            video.play().catch(() => {});
+          }, 5000);
         } else {
+          clearTimeout(video._autoplayTimer);
           video.classList.remove('is-playing');
           video.pause();
         }
@@ -853,7 +870,7 @@
 (function(){
   // Gold value calculator — uses the same server-cached live price the
   // ticker uses (one cheap same-origin call; GoldAPI is never hit per-visitor).
-  const FX = 61.6;
+  const FX = 61.7;
   const GRAMS_PER_OZ = 31.1035;
   const gramsEl = document.getElementById('calc-grams');
   const karatEl = document.getElementById('calc-karat');
@@ -1003,7 +1020,7 @@
   const k18El = document.getElementById('php-18k');
   const changeEl = document.getElementById('change');
   const noteEl = document.getElementById('ticker-note');
-  const FX = 61.6;
+  const FX = 61.7;
   const GRAMS_PER_OZ = 31.1035;
 
   // The Node server fetches GoldAPI.io once a day itself (see
