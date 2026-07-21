@@ -3,22 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Riolendel — Real 18K Gold, Priced for Everyday Filipinos</title>
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32">
 <link rel="icon" href="/favicon-192.png" type="image/png" sizes="192x192">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="alternate" type="application/rss+xml" title="Riolendel Stories" href="/rss.xml">
-<meta name="description" content="Plain-language gold education for Filipinos: how to buy physical or digital gold safely, care for gold jewelry, live PHP gold prices, and a free calculator to check what your gold is worth today.">
+<meta name="description" content="Shop 18K Saudi gold rings, necklaces, and earrings at everyday prices — plus live PHP gold prices, a free value calculator, and honest gold education for Filipino buyers.">
 <link rel="canonical" href="https://riolendel.com/">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Riolendel — Gold, Understood">
-<meta property="og:description" content="Plain-language gold education for Filipinos: physical vs. digital gold, jewelry care, live PHP prices, and a free gold value calculator.">
+<meta property="og:title" content="Riolendel — Real 18K Gold, Priced for Everyday Filipinos">
+<meta property="og:description" content="Shop 18K Saudi gold jewelry at everyday prices, plus live PHP gold prices and a free gold value calculator.">
 <meta property="og:url" content="https://riolendel.com/">
 <meta property="og:site_name" content="Riolendel">
 <meta property="og:locale" content="en_PH">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Riolendel — Gold, Understood">
-<meta name="twitter:description" content="Plain-language gold education for Filipinos: physical vs. digital gold, jewelry care, live PHP prices, and a free gold value calculator.">
+<meta name="twitter:title" content="Riolendel — Real 18K Gold, Priced for Everyday Filipinos">
+<meta name="twitter:description" content="Shop 18K Saudi gold jewelry at everyday prices, plus live PHP gold prices and a free gold value calculator.">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -43,6 +44,14 @@
     {
       "@type": "FAQPage",
       "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Is the jewelry in your shop real gold?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes — it's genuine 18K gold, but made using a lightweight \"pawnable\" (hollow/ampaw) construction, which is why it's priced lower than solid pieces of the same size. That's normal for this category, not a sign it's fake."
+          }
+        },
         {
           "@type": "Question",
           "name": "Is digital gold better than physical gold?",
@@ -171,6 +180,28 @@
 
   .chart-card{background:var(--paper);border:1px solid #E4DAC2;padding:32px;margin-top:8px;}
 
+  /* ---------- Shop section ---------- */
+  .shop-filters{display:flex;gap:10px;flex-wrap:wrap;margin:28px 0 24px;}
+  .shop-filter{background:var(--paper);border:1px solid #DDD3BC;color:var(--ink-muted);padding:9px 18px;border-radius:20px;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;}
+  .shop-filter.active{background:var(--ink);color:var(--gold-bright);border-color:var(--ink);}
+  .shop-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;}
+  .shop-card{display:block;text-decoration:none;color:inherit;background:var(--paper);border:1px solid #E4DAC2;overflow:hidden;transition:box-shadow .15s, transform .15s;}
+  .shop-card:hover{box-shadow:0 8px 24px rgba(0,0,0,0.12);transform:translateY(-2px);}
+  .shop-card .media{position:relative;width:100%;aspect-ratio:1/1;background:#EFE7D4;overflow:hidden;}
+  .shop-card .media img, .shop-card .media video{width:100%;height:100%;object-fit:cover;display:block;}
+  .shop-card .media video{position:absolute;top:0;left:0;opacity:0;transition:opacity .2s;}
+  .shop-card:hover .media video{opacity:1;}
+  .shop-card .card-body{padding:14px 16px;}
+  .shop-card .card-cat{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.06em;text-transform:uppercase;color:var(--gold-dim);}
+  .shop-card h4{font-size:13.5px;font-family:'Inter',sans-serif;font-weight:600;margin:6px 0 0;line-height:1.35;color:var(--ink-text);}
+  .shop-card .card-cta{margin-top:8px;font-size:12px;color:var(--gold-dim);font-family:'IBM Plex Mono',monospace;}
+  .shop-note{margin-top:28px;background:var(--parchment);border-left:3px solid var(--gold);padding:16px 20px;font-size:13.5px;color:var(--ink-muted);line-height:1.6;}
+  .shop-note b{color:var(--ink-text);}
+
+  .section-divider{background:var(--panel-dark);padding:22px 0;}
+  .section-divider .wrap{text-align:center;}
+  .section-divider span{font-family:'IBM Plex Mono',monospace;font-size:12.5px;letter-spacing:0.06em;color:var(--text-dark-2);}
+
   .calc-card{background:var(--parchment);border:1px solid #DDD3BC;padding:36px;}
 
   .news-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#E4DAC2;border:1px solid #E4DAC2;}
@@ -256,6 +287,8 @@
     .chart-card{padding:20px 14px;}
     .calc-card{padding:22px 16px;}
     .news-grid{grid-template-columns:1fr;}
+    .shop-grid{grid-template-columns:repeat(2,1fr);gap:10px;}
+    .shop-card h4{font-size:12px;}
     .calc-grid{grid-template-columns:1fr;gap:24px;}
     .chart-inner{height:200px;}
     .chart-swipe-hint{display:block;}
@@ -270,20 +303,20 @@
   <div class="nav">
     <img src="assets/logo-nav.png" alt="Riolendel" class="logo-img">
     <div style="display:flex;align-items:center;gap:20px;">
+      <a href="#shop" style="font-size:13px;color:var(--gold-bright);text-decoration:none;font-family:'IBM Plex Mono',monospace;letter-spacing:0.06em;">SHOP</a>
+      <a href="#learn-more" style="font-size:13px;color:var(--text-dark-2);text-decoration:none;font-family:'IBM Plex Mono',monospace;letter-spacing:0.06em;">LEARN</a>
       <a href="/blog/" style="font-size:13px;color:var(--text-dark-2);text-decoration:none;font-family:'IBM Plex Mono',monospace;letter-spacing:0.06em;">STORIES</a>
-      <a href="/shop/" style="font-size:13px;color:var(--gold-bright);text-decoration:none;font-family:'IBM Plex Mono',monospace;letter-spacing:0.06em;">SHOP PICKS</a>
-      <div class="eyebrow" style="color:var(--text-dark-2)">Gold education for Filipino savers</div>
     </div>
   </div>
 
   <div class="hero">
     <div class="hero-inner">
-      <div class="eyebrow" style="color:var(--gold-bright)">For families who already trust gold</div>
-      <h1 style="margin-top:14px">You bought gold because it holds its value.<br><em>Here's what's changed since.</em></h1>
-      <p>Gold hasn't stopped being a good idea — but how Filipinos hold it has. This is a plain-language look at physical gold versus the new digital gold apps, so you can decide what fits your family with your eyes open.</p>
+      <div class="eyebrow" style="color:var(--gold-bright)">Pawnable 18K Saudi gold, ready to wear</div>
+      <h1 style="margin-top:14px">Real gold jewelry, priced for everyday Filipinos.<br><em>Shop the collection.</em></h1>
+      <p>Rings, necklaces, earrings and more — 18K Saudi gold pieces from a trusted seller, at prices that don't ask you to choose between a piece you love and a piece you can afford.</p>
       <div class="hero-cta">
-        <a href="#optin" class="btn btn-gold">Get the price alert</a>
-        <a href="#learn" class="btn btn-ghost">See how digital gold works</a>
+        <a href="#shop" class="btn btn-gold">Shop the collection</a>
+        <a href="#learn-more" class="btn btn-ghost">New to gold? Start here</a>
       </div>
     </div>
   </div>
@@ -310,6 +343,34 @@
     </div>
   </div>
 </header>
+
+<section id="shop">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">Shop the collection</div>
+      <h2>18K Saudi gold, ready to wear</h2>
+      <p>From <b>JAO Shop</b> on Shopee — a seller with a real following among Filipino gold buyers. Tap any piece to view it and buy on Shopee. As an affiliate, Riolendel may earn a small commission on qualifying purchases, at no extra cost to you.</p>
+    </div>
+
+    <div class="shop-filters" id="shop-filters">
+      <button class="shop-filter active" data-cat="all">All</button>
+    </div>
+
+    <div class="shop-grid" id="shop-grid">
+      <p class="news-loading">Loading the collection&hellip;</p>
+    </div>
+
+    <div class="shop-note">
+      <b>What "pawnable 18K Saudi gold" means:</b> these are genuine but lightweight ("ampaw"/hollow-construction) 18K gold pieces — real gold, priced low because there's less of it by weight, not because it's fake. That's normal for this category and part of why it's affordable. If you're ever unsure about a piece, most Metro Manila pawnshops and jewelers can test purity on the spot.
+    </div>
+  </div>
+</section>
+
+<div class="section-divider" id="learn-more">
+  <div class="wrap">
+    <span>📚 Also worth knowing — gold education, for the curious</span>
+  </div>
+</div>
 
 <section id="history">
   <div class="wrap">
@@ -513,25 +574,25 @@
 <section class="trust">
   <div class="wrap">
     <div class="section-head" style="max-width:640px;">
-      <div class="eyebrow" style="color:var(--gold-bright)">Why you're hearing from us</div>
-      <h2 style="color:var(--text-dark-1)">A short, honest note before you sign up</h2>
-      <p style="color:var(--text-dark-2)">We're reaching out to past customers of the family jewelry business, now building something separate and new. Nothing here is investment advice, and we're not licensed to sell or manage investments — this is information, so you can make your own call.</p>
+      <div class="eyebrow" style="color:var(--gold-bright)">How we do this</div>
+      <h2 style="color:var(--text-dark-1)">A short, honest note before you buy</h2>
+      <p style="color:var(--text-dark-2)">This started as a family jewelry business, and it's still run that way — we pick pieces we'd actually want to see on our own family, and we tell you plainly what you're getting and how we make money from it.</p>
     </div>
     <div class="trust-grid">
       <div class="trust-item">
         <div class="num">01</div>
-        <h4>No pressure, no hard sell</h4>
-        <p>We'll send you gold price context and plain explanations. No "invest now" countdowns, no guaranteed-return promises.</p>
+        <h4>No fake urgency</h4>
+        <p>No countdown timers, no "only 2 left" pressure tactics you'll see elsewhere in this space. A piece being in stock today doesn't mean it's gone tomorrow.</p>
       </div>
       <div class="trust-item">
         <div class="num">02</div>
-        <h4>Opt out anytime, no questions</h4>
-        <p>Every message includes a one-tap way to stop hearing from us. Your number and email are never sold to anyone.</p>
+        <h4>Straight about the affiliate relationship</h4>
+        <p>We earn a small commission when you buy through our links. It doesn't change your price, and we'd rather say it plainly than have you find out later.</p>
       </div>
       <div class="trust-item">
         <div class="num">03</div>
-        <h4>We name real platforms, warts included</h4>
-        <p>When we mention an app or provider, we'll say what to check before trusting it — not just why to click.</p>
+        <h4>We still teach you to check for yourself</h4>
+        <p>"Pawnable 18K" is a real category with real variation in quality. We explain what that means below the shop, not just why to click.</p>
       </div>
     </div>
   </div>
@@ -543,6 +604,10 @@
       <h2>Frequently asked questions</h2>
     </div>
     <div class="faq-list">
+      <details class="faq-item" open>
+        <summary>Is the jewelry in your shop real gold?</summary>
+        <p>Yes — it's genuine 18K gold, but made using a lightweight "pawnable" (hollow/ampaw) construction, which is why it's priced lower than solid pieces of the same size. That's normal for this category, not a sign it's fake. If you're ever unsure, most Metro Manila jewelers and pawnshops can test purity on the spot.</p>
+      </details>
       <details class="faq-item">
         <summary>Is digital gold better than physical gold?</summary>
         <p>It's not a competition — they serve different purposes. Physical gold carries family meaning and you hold it yourself; digital gold is flexible and quick to convert. Many Filipino households hold both rather than choosing just one.</p>
@@ -572,6 +637,7 @@
           <h2>The Gold Owner's Guide</h2>
           <p class="lead">A short PDF on how to buy fractional or digital gold securely, and how to properly care for the gold jewelry you already own. After that, choose how you'd like to hear from us:</p>
           <ul class="optin-benefits">
+            <li><b>New arrivals first</b> — a heads-up when new pieces land, before they're widely shared</li>
             <li><b>Weekly price note</b> — where gold's headed, in pesos per gram</li>
             <li><b>Price-move alerts</b> — a heads-up when gold swings sharply, with the news behind it</li>
           </ul>
@@ -619,6 +685,60 @@
     <div>Not investment advice. Not a licensed investment adviser or solicitor. <a href="#">Privacy notice</a></div>
   </div>
 </footer>
+
+<script>
+(function(){
+  // Product catalog embedded directly — no backend call needed since this
+  // is a fixed batch of affiliate products, not something that needs
+  // server-side freshness like price/news data.
+  const PRODUCTS = [{"slug":"18k-saudi-gold-necklace-w-heart-pendant","name":"18K Saudi Gold Necklace W Heart Pendant","category":"Necklaces","video":"/shop/media/18k-saudi-gold-necklace-w-heart-pendant.mp4","image":"/shop/media/18k-saudi-gold-necklace-w-heart-pendant.webp","url":"https://s.shopee.ph/7KvYCRAlQR"},{"slug":"18k-saudi-gold-necklace-w-clover-pendant","name":"18K Saudi Gold Necklace W Clover Pendant","category":"Necklaces","video":"/shop/media/18k-saudi-gold-necklace-w-clover-pendant.mp4","image":"/shop/media/18k-saudi-gold-necklace-w-clover-pendant.webp","url":"https://s.shopee.ph/qi4SWtBfV"},{"slug":"18k-saudi-gold-engagements-ring","name":"18K Saudi Gold Engagements Ring","category":"Rings","video":"/shop/media/18k-saudi-gold-engagements-ring.mp4","image":"/shop/media/18k-saudi-gold-engagements-ring.webp","url":"https://s.shopee.ph/AAFjZjnzxa"},{"slug":"18k-saudi-gold-heart-ray-ring","name":"18K Saudi Gold Heart Ray Ring","category":"Rings","video":"/shop/media/18k-saudi-gold-heart-ray-ring.mp4","image":"/shop/media/18k-saudi-gold-heart-ray-ring.webp","url":"https://s.shopee.ph/2LWsFNGK90"},{"slug":"eternity-ring-pawnable-18k-saudi-gold","name":"Eternity Ring Pawnable 18K Saudi Gold","category":"Rings","video":"/shop/media/eternity-ring-pawnable-18k-saudi-gold.mp4","image":"/shop/media/eternity-ring-pawnable-18k-saudi-gold.webp","url":"https://s.shopee.ph/7VEyOudm8B"},{"slug":"18k-saudi-gold-double-ring","name":"18K Saudi Gold Double Ring","category":"Rings","video":"/shop/media/18k-saudi-gold-double-ring.mp4","image":"/shop/media/18k-saudi-gold-double-ring.webp","url":"https://s.shopee.ph/8AUfC9alTQ"},{"slug":"cross-men-design-ring-18k-saudi-gold","name":"Cross Men Design Ring 18K Saudi Gold","category":"Rings","video":"/shop/media/cross-men-design-ring-18k-saudi-gold.mp4","image":"/shop/media/cross-men-design-ring-18k-saudi-gold.webp","url":"https://s.shopee.ph/4AyWQp9BHE"},{"slug":"18k-saudi-gold-clover-dangling","name":"18K Saudi Gold Clover Dangling","category":"Earrings","video":"/shop/media/18k-saudi-gold-clover-dangling.mp4","image":"/shop/media/18k-saudi-gold-clover-dangling.webp","url":"https://s.shopee.ph/8fQvn6u7Xf"},{"slug":"18k-saudi-gold-dancing-chain","name":"18K Saudi Gold Dancing Chain","category":"Necklaces","video":"/shop/media/18k-saudi-gold-dancing-chain.mp4","image":"/shop/media/18k-saudi-gold-dancing-chain.webp","url":"https://s.shopee.ph/903mBjo32a"},{"slug":"18k-saudi-gold-wedding-ring-2","name":"18K Saudi Gold Wedding Ring 2","category":"Rings","video":"/shop/media/18k-saudi-gold-wedding-ring-2.mp4","image":"/shop/media/18k-saudi-gold-wedding-ring-2.webp","url":"https://s.shopee.ph/3qLg2H72xX"},{"slug":"18k-saudi-gold-link-band-ring","name":"18K Saudi Gold Link Band Ring","category":"Rings","video":"/shop/media/18k-saudi-gold-link-band-ring.mp4","image":"/shop/media/18k-saudi-gold-link-band-ring.webp","url":"https://s.shopee.ph/1qabecIekq"},{"slug":"twisted-ring-18k-saudi-gold","name":"Twisted Ring 18K Saudi Gold","category":"Rings","video":"/shop/media/twisted-ring-18k-saudi-gold.mp4","image":"/shop/media/twisted-ring-18k-saudi-gold.webp","url":"https://s.shopee.ph/2qT8qT9q71"},{"slug":"18k-saudi-gold-cadena-ring","name":"18K Saudi Gold Cadena Ring","category":"Rings","video":"/shop/media/18k-saudi-gold-cadena-ring.mp4","image":"/shop/media/18k-saudi-gold-cadena-ring.webp","url":"https://s.shopee.ph/6L310uriBM"},{"slug":"18k-saudi-gold-diacut-dome-ring","name":"18K Saudi Gold Diacut Dome Ring","category":"Rings","video":"/shop/media/18k-saudi-gold-diacut-dome-ring.mp4","image":"/shop/media/18k-saudi-gold-diacut-dome-ring.webp","url":"https://s.shopee.ph/9V02mkjrHM"},{"slug":"18k-saudi-gold-ring-buckle","name":"18K Saudi Gold Ring Buckle","category":"Rings","video":"/shop/media/18k-saudi-gold-ring-buckle.mp4","image":"/shop/media/18k-saudi-gold-ring-buckle.webp","url":"https://s.shopee.ph/7fYObQlZOW"},{"slug":"18k-saudi-gold-monaco-ring","name":"18K Saudi Gold Monaco Ring","category":"Rings","video":"/shop/media/18k-saudi-gold-monaco-ring.mp4","image":"/shop/media/18k-saudi-gold-monaco-ring.webp","url":"https://s.shopee.ph/7KvYCrqIm7"},{"slug":"18k-saudi-gold-barrel-pendant","name":"18K Saudi Gold Barrel Pendant","category":"Pendants","video":"/shop/media/18k-saudi-gold-barrel-pendant.mp4","image":"/shop/media/18k-saudi-gold-barrel-pendant.webp","url":"https://s.shopee.ph/40f6EnjIOG"},{"slug":"18k-saudi-gold-croissant-loop-earring","name":"18K Saudi Gold Croissant Loop Earring","category":"Earrings","video":"/shop/media/18k-saudi-gold-croissant-loop-earring.mp4","image":"/shop/media/18k-saudi-gold-croissant-loop-earring.webp","url":"https://s.shopee.ph/6AjaonazH1"},{"slug":"wheels-design-mens-ring","name":"Wheels Design Mens Ring","category":"Rings","video":"/shop/media/wheels-design-mens-ring.mp4","image":"/shop/media/wheels-design-mens-ring.webp","url":"https://s.shopee.ph/8fQvnPM7GB"},{"slug":"18k-saudi-gold-necklace-w-pendant-buo","name":"18K Saudi Gold Necklace W Pendant Buo","category":"Necklaces","video":"/shop/media/18k-saudi-gold-necklace-w-pendant-buo.mp4","image":"/shop/media/18k-saudi-gold-necklace-w-pendant-buo.webp","url":"https://s.shopee.ph/gOeGjlmC5"},{"slug":"18k-saudi-gold-clip-earring","name":"18K Saudi Gold Clip Earring","category":"Earrings","video":"/shop/media/18k-saudi-gold-clip-earring.mp4","image":"/shop/media/18k-saudi-gold-clip-earring.webp","url":"https://s.shopee.ph/4fun26RGPk"},{"slug":"18k-saudi-gold-electroform-heart-pendant","name":"18K Saudi Gold Electroform Heart Pendant","category":"Pendants","video":"/shop/media/18k-saudi-gold-electroform-heart-pendant.mp4","image":"/shop/media/18k-saudi-gold-electroform-heart-pendant.webp","url":"https://s.shopee.ph/60QAcbdKaj"},{"slug":"18k-saudi-gold-dia-cut-twist-loop-earring","name":"18K Saudi Gold Dia Cut Twist Loop Earring","category":"Earrings","video":"/shop/media/18k-saudi-gold-dia-cut-twist-loop-earring.mp4","image":"/shop/media/18k-saudi-gold-dia-cut-twist-loop-earring.webp","url":"https://s.shopee.ph/70IhoTn5HE"},{"slug":"18k-saudi-gold-de-roscas-ball-earrings","name":"18K Saudi Gold De Roscas Ball Earrings","category":"Earrings","video":"/shop/media/18k-saudi-gold-de-roscas-ball-earrings.mp4","image":"/shop/media/18k-saudi-gold-de-roscas-ball-earrings.webp","url":"https://s.shopee.ph/8pkLzsdN7o"},{"slug":"18k-saudi-gold-heart-link-ring","name":"18K Saudi Gold Heart Link Ring","category":"Rings","video":"/shop/media/18k-saudi-gold-heart-link-ring.mp4","image":"/shop/media/18k-saudi-gold-heart-link-ring.webp","url":"https://s.shopee.ph/9zwJO2V1Kz"},{"slug":"18k-saudi-gold-fen-fen-design-earrings","name":"18K Saudi Gold Fen Fen Design Earrings","category":"Earrings","video":"/shop/media/18k-saudi-gold-fen-fen-design-earrings.mp4","image":"/shop/media/18k-saudi-gold-fen-fen-design-earrings.webp","url":"https://s.shopee.ph/W5E4b1PkN"},{"slug":"18k-saudi-gold-beaded-bracelet","name":"18K Saudi Gold Beaded Bracelet","category":"Bracelets","video":"/shop/media/18k-saudi-gold-beaded-bracelet.mp4","image":"/shop/media/18k-saudi-gold-beaded-bracelet.webp","url":"https://s.shopee.ph/80BF0OtHuh"},{"slug":"18k-saudi-gold-necklace-with-3-mini-heart-pendant","name":"18K Saudi Gold Necklace With 3 Mini Heart Pendant","category":"Necklaces","video":"/shop/media/18k-saudi-gold-necklace-with-3-mini-heart-pendant.mp4","image":"/shop/media/18k-saudi-gold-necklace-with-3-mini-heart-pendant.webp","url":"https://s.shopee.ph/4VbMq09NYs"},{"slug":"18k-saudi-gold-leaf-ring","name":"18K Saudi Gold Leaf Ring","category":"Rings","video":"/shop/media/18k-saudi-gold-leaf-ring.mp4","image":"/shop/media/18k-saudi-gold-leaf-ring.webp","url":"https://s.shopee.ph/2VqISNDNJA"},{"slug":"18k-saudi-gold-heartbiz-necklace","name":"18K Saudi Gold Heartbiz Necklace","category":"Necklaces","video":"/shop/media/18k-saudi-gold-heartbiz-necklace.mp4","image":"/shop/media/18k-saudi-gold-heartbiz-necklace.webp","url":"https://s.shopee.ph/9fJSzYgG1D"},{"slug":"18k-saudi-gold-fenfen-ring-sold-per-pc","name":"18K Saudi Gold Fenfen Ring Sold Per Pc","category":"Rings","video":"/shop/media/18k-saudi-gold-fenfen-ring-sold-per-pc.mp4","image":"/shop/media/18k-saudi-gold-fenfen-ring-sold-per-pc.webp","url":"https://s.shopee.ph/gOeH2M1PF"},{"slug":"18k-saudi-gold-wedding-ring","name":"18K Saudi Gold Wedding Ring","category":"Rings","video":"/shop/media/18k-saudi-gold-wedding-ring.mp4","image":"/shop/media/18k-saudi-gold-wedding-ring.webp","url":"https://s.shopee.ph/9fJSzceEFc"},{"slug":"18k-saudi-gold-infinity-necklace","name":"18K Saudi Gold Infinity Necklace","category":"Necklaces","video":"/shop/media/18k-saudi-gold-infinity-necklace.mp4","image":"/shop/media/18k-saudi-gold-infinity-necklace.webp","url":"https://s.shopee.ph/3B5zFjJMRQ"},{"slug":"18k-saudi-gold-twisted-dome-ring","name":"18K Saudi Gold Twisted Dome Ring","category":"Rings","video":"/shop/media/18k-saudi-gold-twisted-dome-ring.mp4","image":"/shop/media/18k-saudi-gold-twisted-dome-ring.webp","url":"https://s.shopee.ph/80BF0e4D1s"},{"slug":"18k-saudi-gold-double-ring-clover-heart-design","name":"18K Saudi Gold Double Ring Clover & Heart Design","category":"Rings","video":"/shop/media/18k-saudi-gold-double-ring-clover-heart-design.mp4","image":"/shop/media/18k-saudi-gold-double-ring-clover-heart-design.webp","url":"https://s.shopee.ph/6VMRDw0Jvg"}]
+;
+
+  const grid = document.getElementById('shop-grid');
+  const filterBar = document.getElementById('shop-filters');
+
+  const categories = ['all', ...new Set(PRODUCTS.map(p => p.category))];
+  categories.slice(1).forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'shop-filter';
+    btn.dataset.cat = cat;
+    btn.textContent = cat;
+    filterBar.appendChild(btn);
+  });
+
+  function esc(str){
+    const div = document.createElement('div');
+    div.textContent = str || '';
+    return div.innerHTML;
+  }
+
+  function render(activeCat){
+    const items = activeCat === 'all' ? PRODUCTS : PRODUCTS.filter(p => p.category === activeCat);
+    grid.innerHTML = items.map(p => `
+      <a class="shop-card" href="${esc(p.url)}" target="_blank" rel="noopener noreferrer sponsored">
+        <div class="media">
+          <img src="${esc(p.image)}" alt="${esc(p.name)}" loading="lazy">
+          <video src="${esc(p.video)}" muted loop playsinline preload="none" onmouseover="this.play()" onmouseout="this.pause()"></video>
+        </div>
+        <div class="card-body">
+          <div class="card-cat">${esc(p.category)}</div>
+          <h4>${esc(p.name)}</h4>
+          <div class="card-cta">View on Shopee &rarr;</div>
+        </div>
+      </a>
+    `).join('');
+  }
+
+  filterBar.addEventListener('click', (e) => {
+    if(e.target.tagName !== 'BUTTON') return;
+    filterBar.querySelectorAll('.shop-filter').forEach(b => b.classList.remove('active'));
+    e.target.classList.add('active');
+    render(e.target.dataset.cat);
+  });
+
+  render('all');
+})();
+</script>
 
 <script>
 (function(){

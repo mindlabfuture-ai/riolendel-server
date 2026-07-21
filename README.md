@@ -60,100 +60,6 @@ front end; you'll want Postgres attached before taking real signups.
    ```
    That confirms Postgres and GoldAPI are both wired up correctly.
 
-## Opt-in nurture sequence (email + SMS)
-
-Every landing-page signup and CSV-imported contact gets enrolled in a
-drip automatically (`src/sequences.js`):
-
-- **Email (Resend):** Gold Owner's Guide PDF link immediately → jewelry
-  care tips after 2 days → soft nudge to `/shop/` after 5 days.
-- **SMS (Semaphore):** one welcome text immediately, if a phone number
-  is present. Separate from this: `src/priceAlerts.js` already sends
-  price-move alerts by email/SMS to anyone who opted into that channel
-  — that part isn't a fixed drip, it fires whenever gold moves ≥1.5%
-  in a day.
-
-**CSV import:** `/admin/contacts.html` → upload a CSV with
-`name, email, phone, channel` columns → each row is imported and
-enrolled, with an optional "send first message at" time so a bulk
-import doesn't fire drip emails at 2am.
-
-### Resend vs Smartlead.ai — which one do you actually need?
-
-These solve different problems, and the answer depends on *who's on
-the list*:
-
-- **Resend** is a transactional/opt-in email API — built for sending
-  to people who already gave you permission (signed up on your site,
-  bought something, etc). This is what's wired into `src/emailSender.js`
-  and used above, because every contact in your `optins` table either
-  filled out the form themselves or was imported by you as an existing
-  customer/lead — not a cold, unsolicited list.
-
-- **Smartlead.ai** is built for cold outreach at scale — high-volume
-  sending to people who *haven't* opted in, with mailbox warmup pools
-  and inbox rotation specifically because that kind of sending gets
-  flagged as spam without it. It's the right tool if you plan to email
-  prospects who've never interacted with Riolendel — e.g. sourcing a
-  list of jewelry shoppers and cold-emailing them.
-
-**If you're only doing the opt-in nurture sequence above, Resend is
-the correct (and only) tool — Smartlead would be solving a problem you
-don't have.** If you later want to run actual cold outreach to a
-purchased or scraped list, that's a separate system from what's built
-here, and worth setting up on its own — mixing cold-outreach volume
-into the same sending domain as your opt-in nurture emails can hurt
-deliverability for the legitimate list too. Also worth checking
-Philippine data privacy rules (the Data Privacy Act of 2012, which the
-opt-in form's consent language already references) before cold-emailing
-any list you didn't collect direct consent for.
-
-## Affiliate shop, video warm-up & cross-posting
-
-Three admin-only tools live under `/admin/` (protected by `ADMIN_TOKEN`):
-
-- **`/admin/videos.html`** — add TikTok video references (for content
-  research, not downloading) and 18K gold affiliate products (shown on
-  the public `/shop/` page). Also has the **Warm-Up & Schedule** tab,
-  with two ways to get a video: upload a file you already have, or
-  generate one from a product photo via Runway's image-to-video API
-  (`src/videoGenerator.js`) — no watermark, since it's generated fresh
-  rather than reposted from Shopee/TikTok Shop, which stamp their own
-  branding onto every video. Either path extracts 2–4 JPEG stills via
-  ffmpeg, and you can schedule a two-phase campaign — stills post
-  immediately (no link, just to warm up engagement), then the real
-  video + your affiliate link auto-posts 1–2 days later via
-  `src/scheduler.js`. This matters because Shopee/TikTok Shop affiliate
-  links carry session-timed tracking tokens that can expire before an
-  immediate post gets real engagement.
-- **`/admin/social.html`** — one-off cross-posting to Facebook,
-  Instagram, TikTok, and Shopee from a single compose box.
-
-**Runway API note:** this integration was built without live access to
-test against Runway's current API, since exact field names can shift
-between model generations. If video generation fails with a schema
-error, check `https://docs.dev.runwayml.com` against the request shape
-in `src/videoGenerator.js`'s `createTask()` and adjust field
-names/enums to match — the polling/download logic around it shouldn't
-need to change.
-
-**ffmpeg requirement:** frame extraction needs `ffmpeg`/`ffprobe` on
-the host. This repo includes `nixpacks.toml` so Railway's builder
-installs it automatically — no action needed on Railway. Running
-elsewhere (Docker, VPS), make sure `ffmpeg` is on `PATH`.
-
-**Platform API setup:** see `.env.example` for `FB_PAGE_ID`,
-`IG_USER_ID`, `TIKTOK_ACCESS_TOKEN`, etc. Facebook is the fastest to
-get working; Instagram and TikTok both require Meta/TikTok app review
-before they post automatically — until approved, the dashboard falls
-back to a "copy text" mode for those platforms so nothing blocks you.
-
-**Uploaded files & persistence:** videos and extracted frames are
-saved under `public/uploads/`. On Railway this is ephemeral storage —
-files survive restarts within a deploy but are wiped on redeploy.
-Attach a Railway Volume mounted at `public/uploads` if you need these
-to persist long-term, or move to S3/Cloudinary for production use.
-
 ## Cost reality check
 
 Railway's free trial gives $5 in credits for 30 days. After that, a
@@ -210,7 +116,36 @@ gold news before the alert goes out and adding a one-line cause. Worth
 doing manually at first rather than promising fully automatic
 news-linked alerts before that's really wired up.
 
-## AI chatbot (needs ANTHROPIC_API_KEY)
+## Gold news headlines (needs CURRENTS_API_KEY)
+
+A "What's moving gold right now" section on the landing page shows up
+to 6 recent headlines, filtered to a curated list of reputable outlets
+(Reuters, Bloomberg, CNBC, MarketWatch, Kitco, Yahoo Finance, The
+Guardian, BBC, and similar) so low-quality sources never show up.
+
+**Why not Yahoo Finance's API directly:** Yahoo shut down its official
+API in 2017. What's commonly called "the Yahoo Finance API" today is
+unofficial scraping (e.g. the `yfinance` Python library), explicitly
+licensed for personal use only and prone to breaking without notice —
+not appropriate to build a commercial feature on. This uses **Currents
+API** instead, a legitimate news aggregator whose free tier explicitly
+permits commercial/production use (unlike NewsAPI.org, whose free tier
+is development-only and requires a $449/month plan to go live).
+
+**Setup:**
+1. Sign up free at currentsapi.services (no credit card, 1,000
+   requests/day)
+2. Add `CURRENTS_API_KEY` to your Railway environment variables
+3. Same caching pattern as the price ticker: fetched once daily via
+   cron (`GOLD_NEWS_CRON`, defaults to 1:30 AM UTC), cached in Postgres
+   and memory, served to unlimited visitors from cache. Your Currents
+   API usage stays at ~30 requests/month regardless of traffic.
+
+**Copyright note:** only headline, a short (220-char max) snippet, and
+a link back to the original article are ever shown — never full
+article text, consistent with how the rest of this site handles
+external sources.
+
 
 A floating chat widget on the landing page answers gold questions via
 `/api/chat`, powered by Claude Haiku (`claude-haiku-4-5`, $1/$5 per
