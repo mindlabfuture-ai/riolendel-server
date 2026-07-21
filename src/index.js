@@ -70,6 +70,41 @@ app.get('/api/admin/refresh-news', async (req, res) => {
   res.json({ diagnostics, cached: goldNews.getCached() });
 });
 
+// ---------- Site tracking ----------
+// Loose rate limit — this just guards against obvious abuse/bot spam
+// inflating the counters, not real traffic (60/10min is generous).
+const trackLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000,
+  max: 60,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+app.post('/api/track/visit', trackLimiter, async (req, res) => {
+  await db.recordVisit();
+  res.json({ ok: true });
+});
+
+app.post('/api/track/click', trackLimiter, async (req, res) => {
+  const { slug } = req.body || {};
+  if (!slug || typeof slug !== 'string' || slug.length > 200) {
+    return res.status(400).json({ ok: false, error: 'Invalid slug.' });
+  }
+  await db.recordClick(slug);
+  res.json({ ok: true });
+});
+
+// GET /api/admin/stats?token=YOUR_ADMIN_TOKEN
+// Total visits, total product clicks, click-through rate, and a top-10
+// most-clicked-product breakdown, all counted since launch day.
+app.get('/api/admin/stats', async (req, res) => {
+  const adminToken = process.env.ADMIN_TOKEN;
+  if (!adminToken) return res.status(503).json({ ok: false, error: 'ADMIN_TOKEN not configured.' });
+  if (req.query.token !== adminToken) return res.status(401).json({ ok: false, error: 'Unauthorized.' });
+  const stats = await db.getStats();
+  res.json({ ok: true, ...stats });
+});
+
 app.post('/api/optin', optinLimiter, async (req, res) => {
   const { name, email, phone, consent, channel } = req.body || {};
 

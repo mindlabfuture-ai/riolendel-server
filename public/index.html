@@ -191,6 +191,7 @@
   .shop-card .media img, .shop-card .media video{width:100%;height:100%;object-fit:cover;display:block;}
   .shop-card .media video{position:absolute;top:0;left:0;opacity:0;transition:opacity .2s;}
   .shop-card:hover .media video{opacity:1;}
+  .shop-card .media video.is-playing{opacity:1;}
   .shop-card .card-body{padding:14px 16px;}
   .shop-card .card-cat{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.06em;text-transform:uppercase;color:var(--gold-dim);}
   .shop-card h4{font-size:13.5px;font-family:'Inter',sans-serif;font-weight:600;margin:6px 0 0;line-height:1.35;color:var(--ink-text);}
@@ -349,7 +350,7 @@
     <div class="section-head">
       <div class="eyebrow">Shop the collection</div>
       <h2>18K Saudi gold, ready to wear</h2>
-      <p><b>NEW DEALS FOUND</b> on Shopee, with an option for COD, Spaylater and fast delivery (order before 2pm, items will be delivered tomorrow for NCR,<br> 2-3 days for other Provinces.</p>
+      <p>From <b>JAO Shop</b> on Shopee — a seller with a real following among Filipino gold buyers. Tap any piece to view it and buy on Shopee. As an affiliate, Riolendel may earn a small commission on qualifying purchases, at no extra cost to you.</p>
     </div>
 
     <div class="shop-filters" id="shop-filters">
@@ -688,14 +689,60 @@
 
 <script>
 (function(){
+  // Counts a "visit" once per browser, using localStorage as a lightweight
+  // approximation of a unique visitor — not a perfect dedupe (cleared
+  // storage or a different device counts again), but reasonable and cheap
+  // without needing cookies/sessions/a full analytics stack.
+  try {
+    if(!localStorage.getItem('riolendel_visited')){
+      localStorage.setItem('riolendel_visited', '1');
+      fetch('/api/track/visit', { method: 'POST' }).catch(() => {});
+    }
+  } catch(e) {
+    // localStorage unavailable (private browsing, etc.) — skip silently,
+    // not worth breaking the page over a tracking nicety.
+  }
+})();
+</script>
+
+<script>
+(function(){
   // Product catalog embedded directly — no backend call needed since this
   // is a fixed batch of affiliate products, not something that needs
   // server-side freshness like price/news data.
-  const PRODUCTS = [{"slug":"18k-saudi-gold-necklace-w-heart-pendant","name":"18K Saudi Gold Necklace W Heart Pendant","category":"Necklaces","video":"/shop/media/18k-saudi-gold-necklace-w-heart-pendant.mp4","image":"/shop/media/18k-saudi-gold-necklace-w-heart-pendant.webp","url":"https://s.shopee.ph/7KvYCRAlQR"},{"slug":"18k-saudi-gold-necklace-w-clover-pendant","name":"18K Saudi Gold Necklace W Clover Pendant","category":"Necklaces","video":"/shop/media/18k-saudi-gold-necklace-w-clover-pendant.mp4","image":"/shop/media/18k-saudi-gold-necklace-w-clover-pendant.webp","url":"https://s.shopee.ph/qi4SWtBfV"},{"slug":"18k-saudi-gold-engagements-ring","name":"18K Saudi Gold Engagements Ring","category":"Rings","video":"/shop/media/18k-saudi-gold-engagements-ring.mp4","image":"/shop/media/18k-saudi-gold-engagements-ring.webp","url":"https://s.shopee.ph/AAFjZjnzxa"},{"slug":"18k-saudi-gold-heart-ray-ring","name":"18K Saudi Gold Heart Ray Ring","category":"Rings","video":"/shop/media/18k-saudi-gold-heart-ray-ring.mp4","image":"/shop/media/18k-saudi-gold-heart-ray-ring.webp","url":"https://s.shopee.ph/2LWsFNGK90"},{"slug":"eternity-ring-pawnable-18k-saudi-gold","name":"Eternity Ring Pawnable 18K Saudi Gold","category":"Rings","video":"/shop/media/eternity-ring-pawnable-18k-saudi-gold.mp4","image":"/shop/media/eternity-ring-pawnable-18k-saudi-gold.webp","url":"https://s.shopee.ph/7VEyOudm8B"},{"slug":"18k-saudi-gold-double-ring","name":"18K Saudi Gold Double Ring","category":"Rings","video":"/shop/media/18k-saudi-gold-double-ring.mp4","image":"/shop/media/18k-saudi-gold-double-ring.webp","url":"https://s.shopee.ph/8AUfC9alTQ"},{"slug":"cross-men-design-ring-18k-saudi-gold","name":"Cross Men Design Ring 18K Saudi Gold","category":"Rings","video":"/shop/media/cross-men-design-ring-18k-saudi-gold.mp4","image":"/shop/media/cross-men-design-ring-18k-saudi-gold.webp","url":"https://s.shopee.ph/4AyWQp9BHE"},{"slug":"18k-saudi-gold-clover-dangling","name":"18K Saudi Gold Clover Dangling","category":"Earrings","video":"/shop/media/18k-saudi-gold-clover-dangling.mp4","image":"/shop/media/18k-saudi-gold-clover-dangling.webp","url":"https://s.shopee.ph/8fQvn6u7Xf"},{"slug":"18k-saudi-gold-dancing-chain","name":"18K Saudi Gold Dancing Chain","category":"Necklaces","video":"/shop/media/18k-saudi-gold-dancing-chain.mp4","image":"/shop/media/18k-saudi-gold-dancing-chain.webp","url":"https://s.shopee.ph/903mBjo32a"},{"slug":"18k-saudi-gold-wedding-ring-2","name":"18K Saudi Gold Wedding Ring 2","category":"Rings","video":"/shop/media/18k-saudi-gold-wedding-ring-2.mp4","image":"/shop/media/18k-saudi-gold-wedding-ring-2.webp","url":"https://s.shopee.ph/3qLg2H72xX"},{"slug":"18k-saudi-gold-link-band-ring","name":"18K Saudi Gold Link Band Ring","category":"Rings","video":"/shop/media/18k-saudi-gold-link-band-ring.mp4","image":"/shop/media/18k-saudi-gold-link-band-ring.webp","url":"https://s.shopee.ph/1qabecIekq"},{"slug":"twisted-ring-18k-saudi-gold","name":"Twisted Ring 18K Saudi Gold","category":"Rings","video":"/shop/media/twisted-ring-18k-saudi-gold.mp4","image":"/shop/media/twisted-ring-18k-saudi-gold.webp","url":"https://s.shopee.ph/2qT8qT9q71"},{"slug":"18k-saudi-gold-cadena-ring","name":"18K Saudi Gold Cadena Ring","category":"Rings","video":"/shop/media/18k-saudi-gold-cadena-ring.mp4","image":"/shop/media/18k-saudi-gold-cadena-ring.webp","url":"https://s.shopee.ph/6L310uriBM"},{"slug":"18k-saudi-gold-diacut-dome-ring","name":"18K Saudi Gold Diacut Dome Ring","category":"Rings","video":"/shop/media/18k-saudi-gold-diacut-dome-ring.mp4","image":"/shop/media/18k-saudi-gold-diacut-dome-ring.webp","url":"https://s.shopee.ph/9V02mkjrHM"},{"slug":"18k-saudi-gold-ring-buckle","name":"18K Saudi Gold Ring Buckle","category":"Rings","video":"/shop/media/18k-saudi-gold-ring-buckle.mp4","image":"/shop/media/18k-saudi-gold-ring-buckle.webp","url":"https://s.shopee.ph/7fYObQlZOW"},{"slug":"18k-saudi-gold-monaco-ring","name":"18K Saudi Gold Monaco Ring","category":"Rings","video":"/shop/media/18k-saudi-gold-monaco-ring.mp4","image":"/shop/media/18k-saudi-gold-monaco-ring.webp","url":"https://s.shopee.ph/7KvYCrqIm7"},{"slug":"18k-saudi-gold-barrel-pendant","name":"18K Saudi Gold Barrel Pendant","category":"Pendants","video":"/shop/media/18k-saudi-gold-barrel-pendant.mp4","image":"/shop/media/18k-saudi-gold-barrel-pendant.webp","url":"https://s.shopee.ph/40f6EnjIOG"},{"slug":"18k-saudi-gold-croissant-loop-earring","name":"18K Saudi Gold Croissant Loop Earring","category":"Earrings","video":"/shop/media/18k-saudi-gold-croissant-loop-earring.mp4","image":"/shop/media/18k-saudi-gold-croissant-loop-earring.webp","url":"https://s.shopee.ph/6AjaonazH1"},{"slug":"wheels-design-mens-ring","name":"Wheels Design Mens Ring","category":"Rings","video":"/shop/media/wheels-design-mens-ring.mp4","image":"/shop/media/wheels-design-mens-ring.webp","url":"https://s.shopee.ph/8fQvnPM7GB"},{"slug":"18k-saudi-gold-necklace-w-pendant-buo","name":"18K Saudi Gold Necklace W Pendant Buo","category":"Necklaces","video":"/shop/media/18k-saudi-gold-necklace-w-pendant-buo.mp4","image":"/shop/media/18k-saudi-gold-necklace-w-pendant-buo.webp","url":"https://s.shopee.ph/gOeGjlmC5"},{"slug":"18k-saudi-gold-clip-earring","name":"18K Saudi Gold Clip Earring","category":"Earrings","video":"/shop/media/18k-saudi-gold-clip-earring.mp4","image":"/shop/media/18k-saudi-gold-clip-earring.webp","url":"https://s.shopee.ph/4fun26RGPk"},{"slug":"18k-saudi-gold-electroform-heart-pendant","name":"18K Saudi Gold Electroform Heart Pendant","category":"Pendants","video":"/shop/media/18k-saudi-gold-electroform-heart-pendant.mp4","image":"/shop/media/18k-saudi-gold-electroform-heart-pendant.webp","url":"https://s.shopee.ph/60QAcbdKaj"},{"slug":"18k-saudi-gold-dia-cut-twist-loop-earring","name":"18K Saudi Gold Dia Cut Twist Loop Earring","category":"Earrings","video":"/shop/media/18k-saudi-gold-dia-cut-twist-loop-earring.mp4","image":"/shop/media/18k-saudi-gold-dia-cut-twist-loop-earring.webp","url":"https://s.shopee.ph/70IhoTn5HE"},{"slug":"18k-saudi-gold-de-roscas-ball-earrings","name":"18K Saudi Gold De Roscas Ball Earrings","category":"Earrings","video":"/shop/media/18k-saudi-gold-de-roscas-ball-earrings.mp4","image":"/shop/media/18k-saudi-gold-de-roscas-ball-earrings.webp","url":"https://s.shopee.ph/8pkLzsdN7o"},{"slug":"18k-saudi-gold-heart-link-ring","name":"18K Saudi Gold Heart Link Ring","category":"Rings","video":"/shop/media/18k-saudi-gold-heart-link-ring.mp4","image":"/shop/media/18k-saudi-gold-heart-link-ring.webp","url":"https://s.shopee.ph/9zwJO2V1Kz"},{"slug":"18k-saudi-gold-fen-fen-design-earrings","name":"18K Saudi Gold Fen Fen Design Earrings","category":"Earrings","video":"/shop/media/18k-saudi-gold-fen-fen-design-earrings.mp4","image":"/shop/media/18k-saudi-gold-fen-fen-design-earrings.webp","url":"https://s.shopee.ph/W5E4b1PkN"},{"slug":"18k-saudi-gold-beaded-bracelet","name":"18K Saudi Gold Beaded Bracelet","category":"Bracelets","video":"/shop/media/18k-saudi-gold-beaded-bracelet.mp4","image":"/shop/media/18k-saudi-gold-beaded-bracelet.webp","url":"https://s.shopee.ph/80BF0OtHuh"},{"slug":"18k-saudi-gold-necklace-with-3-mini-heart-pendant","name":"18K Saudi Gold Necklace With 3 Mini Heart Pendant","category":"Necklaces","video":"/shop/media/18k-saudi-gold-necklace-with-3-mini-heart-pendant.mp4","image":"/shop/media/18k-saudi-gold-necklace-with-3-mini-heart-pendant.webp","url":"https://s.shopee.ph/4VbMq09NYs"},{"slug":"18k-saudi-gold-leaf-ring","name":"18K Saudi Gold Leaf Ring","category":"Rings","video":"/shop/media/18k-saudi-gold-leaf-ring.mp4","image":"/shop/media/18k-saudi-gold-leaf-ring.webp","url":"https://s.shopee.ph/2VqISNDNJA"},{"slug":"18k-saudi-gold-heartbiz-necklace","name":"18K Saudi Gold Heartbiz Necklace","category":"Necklaces","video":"/shop/media/18k-saudi-gold-heartbiz-necklace.mp4","image":"/shop/media/18k-saudi-gold-heartbiz-necklace.webp","url":"https://s.shopee.ph/9fJSzYgG1D"},{"slug":"18k-saudi-gold-fenfen-ring-sold-per-pc","name":"18K Saudi Gold Fenfen Ring Sold Per Pc","category":"Rings","video":"/shop/media/18k-saudi-gold-fenfen-ring-sold-per-pc.mp4","image":"/shop/media/18k-saudi-gold-fenfen-ring-sold-per-pc.webp","url":"https://s.shopee.ph/gOeH2M1PF"},{"slug":"18k-saudi-gold-wedding-ring","name":"18K Saudi Gold Wedding Ring","category":"Rings","video":"/shop/media/18k-saudi-gold-wedding-ring.mp4","image":"/shop/media/18k-saudi-gold-wedding-ring.webp","url":"https://s.shopee.ph/9fJSzceEFc"},{"slug":"18k-saudi-gold-infinity-necklace","name":"18K Saudi Gold Infinity Necklace","category":"Necklaces","video":"/shop/media/18k-saudi-gold-infinity-necklace.mp4","image":"/shop/media/18k-saudi-gold-infinity-necklace.webp","url":"https://s.shopee.ph/3B5zFjJMRQ"},{"slug":"18k-saudi-gold-twisted-dome-ring","name":"18K Saudi Gold Twisted Dome Ring","category":"Rings","video":"/shop/media/18k-saudi-gold-twisted-dome-ring.mp4","image":"/shop/media/18k-saudi-gold-twisted-dome-ring.webp","url":"https://s.shopee.ph/80BF0e4D1s"},{"slug":"18k-saudi-gold-double-ring-clover-heart-design","name":"18K Saudi Gold Double Ring Clover & Heart Design","category":"Rings","video":"/shop/media/18k-saudi-gold-double-ring-clover-heart-design.mp4","image":"/shop/media/18k-saudi-gold-double-ring-clover-heart-design.webp","url":"https://s.shopee.ph/6VMRDw0Jvg"}]
+  // Update this to your Bunny.net Pull Zone URL once created, e.g.
+  // 'https://riolendel-shop.b-cdn.net' — no trailing slash.
+  const MEDIA_BASE = 'https://riolendel-shop.b-cdn.net';
+
+  const PRODUCTS = [{"slug":"18k-saudi-gold-necklace-w-heart-pendant","name":"18K Saudi Gold Necklace W Heart Pendant","category":"Necklaces","video":"18k-saudi-gold-necklace-w-heart-pendant.mp4","image":"18k-saudi-gold-necklace-w-heart-pendant.webp","url":"https://s.shopee.ph/7KvYCRAlQR"},{"slug":"18k-saudi-gold-necklace-w-clover-pendant","name":"18K Saudi Gold Necklace W Clover Pendant","category":"Necklaces","video":"18k-saudi-gold-necklace-w-clover-pendant.mp4","image":"18k-saudi-gold-necklace-w-clover-pendant.webp","url":"https://s.shopee.ph/qi4SWtBfV"},{"slug":"18k-saudi-gold-engagements-ring","name":"18K Saudi Gold Engagements Ring","category":"Rings","video":"18k-saudi-gold-engagements-ring.mp4","image":"18k-saudi-gold-engagements-ring.webp","url":"https://s.shopee.ph/AAFjZjnzxa"},{"slug":"18k-saudi-gold-heart-ray-ring","name":"18K Saudi Gold Heart Ray Ring","category":"Rings","video":"18k-saudi-gold-heart-ray-ring.mp4","image":"18k-saudi-gold-heart-ray-ring.webp","url":"https://s.shopee.ph/2LWsFNGK90"},{"slug":"eternity-ring-pawnable-18k-saudi-gold","name":"Eternity Ring Pawnable 18K Saudi Gold","category":"Rings","video":"eternity-ring-pawnable-18k-saudi-gold.mp4","image":"eternity-ring-pawnable-18k-saudi-gold.webp","url":"https://s.shopee.ph/7VEyOudm8B"},{"slug":"18k-saudi-gold-double-ring","name":"18K Saudi Gold Double Ring","category":"Rings","video":"18k-saudi-gold-double-ring.mp4","image":"18k-saudi-gold-double-ring.webp","url":"https://s.shopee.ph/8AUfC9alTQ"},{"slug":"cross-men-design-ring-18k-saudi-gold","name":"Cross Men Design Ring 18K Saudi Gold","category":"Rings","video":"cross-men-design-ring-18k-saudi-gold.mp4","image":"cross-men-design-ring-18k-saudi-gold.webp","url":"https://s.shopee.ph/4AyWQp9BHE"},{"slug":"18k-saudi-gold-clover-dangling","name":"18K Saudi Gold Clover Dangling","category":"Earrings","video":"18k-saudi-gold-clover-dangling.mp4","image":"18k-saudi-gold-clover-dangling.webp","url":"https://s.shopee.ph/8fQvn6u7Xf"},{"slug":"18k-saudi-gold-dancing-chain","name":"18K Saudi Gold Dancing Chain","category":"Necklaces","video":"18k-saudi-gold-dancing-chain.mp4","image":"18k-saudi-gold-dancing-chain.webp","url":"https://s.shopee.ph/903mBjo32a"},{"slug":"18k-saudi-gold-wedding-ring-2","name":"18K Saudi Gold Wedding Ring 2","category":"Rings","video":"18k-saudi-gold-wedding-ring-2.mp4","image":"18k-saudi-gold-wedding-ring-2.webp","url":"https://s.shopee.ph/3qLg2H72xX"},{"slug":"18k-saudi-gold-link-band-ring","name":"18K Saudi Gold Link Band Ring","category":"Rings","video":"18k-saudi-gold-link-band-ring.mp4","image":"18k-saudi-gold-link-band-ring.webp","url":"https://s.shopee.ph/1qabecIekq"},{"slug":"twisted-ring-18k-saudi-gold","name":"Twisted Ring 18K Saudi Gold","category":"Rings","video":"twisted-ring-18k-saudi-gold.mp4","image":"twisted-ring-18k-saudi-gold.webp","url":"https://s.shopee.ph/2qT8qT9q71"},{"slug":"18k-saudi-gold-cadena-ring","name":"18K Saudi Gold Cadena Ring","category":"Rings","video":"18k-saudi-gold-cadena-ring.mp4","image":"18k-saudi-gold-cadena-ring.webp","url":"https://s.shopee.ph/6L310uriBM"},{"slug":"18k-saudi-gold-diacut-dome-ring","name":"18K Saudi Gold Diacut Dome Ring","category":"Rings","video":"18k-saudi-gold-diacut-dome-ring.mp4","image":"18k-saudi-gold-diacut-dome-ring.webp","url":"https://s.shopee.ph/9V02mkjrHM"},{"slug":"18k-saudi-gold-ring-buckle","name":"18K Saudi Gold Ring Buckle","category":"Rings","video":"18k-saudi-gold-ring-buckle.mp4","image":"18k-saudi-gold-ring-buckle.webp","url":"https://s.shopee.ph/7fYObQlZOW"},{"slug":"18k-saudi-gold-monaco-ring","name":"18K Saudi Gold Monaco Ring","category":"Rings","video":"18k-saudi-gold-monaco-ring.mp4","image":"18k-saudi-gold-monaco-ring.webp","url":"https://s.shopee.ph/7KvYCrqIm7"},{"slug":"18k-saudi-gold-barrel-pendant","name":"18K Saudi Gold Barrel Pendant","category":"Pendants","video":"18k-saudi-gold-barrel-pendant.mp4","image":"18k-saudi-gold-barrel-pendant.webp","url":"https://s.shopee.ph/40f6EnjIOG"},{"slug":"18k-saudi-gold-croissant-loop-earring","name":"18K Saudi Gold Croissant Loop Earring","category":"Earrings","video":"18k-saudi-gold-croissant-loop-earring.mp4","image":"18k-saudi-gold-croissant-loop-earring.webp","url":"https://s.shopee.ph/6AjaonazH1"},{"slug":"wheels-design-mens-ring","name":"Wheels Design Mens Ring","category":"Rings","video":"wheels-design-mens-ring.mp4","image":"wheels-design-mens-ring.webp","url":"https://s.shopee.ph/8fQvnPM7GB"},{"slug":"18k-saudi-gold-necklace-w-pendant-buo","name":"18K Saudi Gold Necklace W Pendant Buo","category":"Necklaces","video":"18k-saudi-gold-necklace-w-pendant-buo.mp4","image":"18k-saudi-gold-necklace-w-pendant-buo.webp","url":"https://s.shopee.ph/gOeGjlmC5"},{"slug":"18k-saudi-gold-clip-earring","name":"18K Saudi Gold Clip Earring","category":"Earrings","video":"18k-saudi-gold-clip-earring.mp4","image":"18k-saudi-gold-clip-earring.webp","url":"https://s.shopee.ph/4fun26RGPk"},{"slug":"18k-saudi-gold-electroform-heart-pendant","name":"18K Saudi Gold Electroform Heart Pendant","category":"Pendants","video":"18k-saudi-gold-electroform-heart-pendant.mp4","image":"18k-saudi-gold-electroform-heart-pendant.webp","url":"https://s.shopee.ph/60QAcbdKaj"},{"slug":"18k-saudi-gold-dia-cut-twist-loop-earring","name":"18K Saudi Gold Dia Cut Twist Loop Earring","category":"Earrings","video":"18k-saudi-gold-dia-cut-twist-loop-earring.mp4","image":"18k-saudi-gold-dia-cut-twist-loop-earring.webp","url":"https://s.shopee.ph/70IhoTn5HE"},{"slug":"18k-saudi-gold-de-roscas-ball-earrings","name":"18K Saudi Gold De Roscas Ball Earrings","category":"Earrings","video":"18k-saudi-gold-de-roscas-ball-earrings.mp4","image":"18k-saudi-gold-de-roscas-ball-earrings.webp","url":"https://s.shopee.ph/8pkLzsdN7o"},{"slug":"18k-saudi-gold-heart-link-ring","name":"18K Saudi Gold Heart Link Ring","category":"Rings","video":"18k-saudi-gold-heart-link-ring.mp4","image":"18k-saudi-gold-heart-link-ring.webp","url":"https://s.shopee.ph/9zwJO2V1Kz"},{"slug":"18k-saudi-gold-fen-fen-design-earrings","name":"18K Saudi Gold Fen Fen Design Earrings","category":"Earrings","video":"18k-saudi-gold-fen-fen-design-earrings.mp4","image":"18k-saudi-gold-fen-fen-design-earrings.webp","url":"https://s.shopee.ph/W5E4b1PkN"},{"slug":"18k-saudi-gold-beaded-bracelet","name":"18K Saudi Gold Beaded Bracelet","category":"Bracelets","video":"18k-saudi-gold-beaded-bracelet.mp4","image":"18k-saudi-gold-beaded-bracelet.webp","url":"https://s.shopee.ph/80BF0OtHuh"},{"slug":"18k-saudi-gold-necklace-with-3-mini-heart-pendant","name":"18K Saudi Gold Necklace With 3 Mini Heart Pendant","category":"Necklaces","video":"18k-saudi-gold-necklace-with-3-mini-heart-pendant.mp4","image":"18k-saudi-gold-necklace-with-3-mini-heart-pendant.webp","url":"https://s.shopee.ph/4VbMq09NYs"},{"slug":"18k-saudi-gold-leaf-ring","name":"18K Saudi Gold Leaf Ring","category":"Rings","video":"18k-saudi-gold-leaf-ring.mp4","image":"18k-saudi-gold-leaf-ring.webp","url":"https://s.shopee.ph/2VqISNDNJA"},{"slug":"18k-saudi-gold-heartbiz-necklace","name":"18K Saudi Gold Heartbiz Necklace","category":"Necklaces","video":"18k-saudi-gold-heartbiz-necklace.mp4","image":"18k-saudi-gold-heartbiz-necklace.webp","url":"https://s.shopee.ph/9fJSzYgG1D"},{"slug":"18k-saudi-gold-fenfen-ring-sold-per-pc","name":"18K Saudi Gold Fenfen Ring Sold Per Pc","category":"Rings","video":"18k-saudi-gold-fenfen-ring-sold-per-pc.mp4","image":"18k-saudi-gold-fenfen-ring-sold-per-pc.webp","url":"https://s.shopee.ph/gOeH2M1PF"},{"slug":"18k-saudi-gold-wedding-ring","name":"18K Saudi Gold Wedding Ring","category":"Rings","video":"18k-saudi-gold-wedding-ring.mp4","image":"18k-saudi-gold-wedding-ring.webp","url":"https://s.shopee.ph/9fJSzceEFc"},{"slug":"18k-saudi-gold-infinity-necklace","name":"18K Saudi Gold Infinity Necklace","category":"Necklaces","video":"18k-saudi-gold-infinity-necklace.mp4","image":"18k-saudi-gold-infinity-necklace.webp","url":"https://s.shopee.ph/3B5zFjJMRQ"},{"slug":"18k-saudi-gold-twisted-dome-ring","name":"18K Saudi Gold Twisted Dome Ring","category":"Rings","video":"18k-saudi-gold-twisted-dome-ring.mp4","image":"18k-saudi-gold-twisted-dome-ring.webp","url":"https://s.shopee.ph/80BF0e4D1s"},{"slug":"18k-saudi-gold-double-ring-clover-heart-design","name":"18K Saudi Gold Double Ring Clover & Heart Design","category":"Rings","video":"18k-saudi-gold-double-ring-clover-heart-design.mp4","image":"18k-saudi-gold-double-ring-clover-heart-design.webp","url":"https://s.shopee.ph/6VMRDw0Jvg"}]
 ;
 
   const grid = document.getElementById('shop-grid');
   const filterBar = document.getElementById('shop-filters');
+
+  // Touch-primary devices (phones/tablets) don't have hover, so videos
+  // there autoplay as each card scrolls into view instead — only the
+  // cards currently visible play, to avoid loading all 35 videos at once.
+  const isMobile = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+  let mobileObserver = null;
+
+  function setupMobileAutoplay(){
+    if(!isMobile || !('IntersectionObserver' in window)) return;
+    if(mobileObserver) mobileObserver.disconnect();
+    mobileObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        const video = entry.target;
+        if(entry.isIntersecting){
+          video.classList.add('is-playing');
+          video.play().catch(() => {});
+        } else {
+          video.classList.remove('is-playing');
+          video.pause();
+        }
+      });
+    }, { threshold: 0.6 });
+    grid.querySelectorAll('.shop-card video').forEach(v => mobileObserver.observe(v));
+  }
 
   const categories = ['all', ...new Set(PRODUCTS.map(p => p.category))];
   categories.slice(1).forEach(cat => {
@@ -712,13 +759,24 @@
     return div.innerHTML;
   }
 
+  // Fire-and-forget click tracking — doesn't block or delay the actual
+  // navigation to Shopee (link opens in a new tab regardless).
+  function trackClick(slug){
+    const payload = JSON.stringify({ slug });
+    if(navigator.sendBeacon){
+      navigator.sendBeacon('/api/track/click', new Blob([payload], { type: 'application/json' }));
+    } else {
+      fetch('/api/track/click', { method: 'POST', headers: {'Content-Type':'application/json'}, body: payload, keepalive: true }).catch(() => {});
+    }
+  }
+
   function render(activeCat){
     const items = activeCat === 'all' ? PRODUCTS : PRODUCTS.filter(p => p.category === activeCat);
     grid.innerHTML = items.map(p => `
-      <a class="shop-card" href="${esc(p.url)}" target="_blank" rel="noopener noreferrer sponsored">
+      <a class="shop-card" href="${esc(p.url)}" data-slug="${esc(p.slug)}" target="_blank" rel="noopener noreferrer sponsored">
         <div class="media">
-          <img src="${esc(p.image)}" alt="${esc(p.name)}" loading="lazy">
-          <video src="${esc(p.video)}" muted loop playsinline preload="none" onmouseover="this.play()" onmouseout="this.pause()"></video>
+          <img src="${esc(MEDIA_BASE + '/' + p.image)}" alt="${esc(p.name)}" loading="lazy">
+          <video src="${esc(MEDIA_BASE + '/' + p.video)}" muted loop playsinline preload="none" onmouseover="this.play()" onmouseout="this.pause()"></video>
         </div>
         <div class="card-body">
           <div class="card-cat">${esc(p.category)}</div>
@@ -727,7 +785,13 @@
         </div>
       </a>
     `).join('');
+    setupMobileAutoplay();
   }
+
+  grid.addEventListener('click', (e) => {
+    const card = e.target.closest('.shop-card');
+    if(card) trackClick(card.dataset.slug);
+  });
 
   filterBar.addEventListener('click', (e) => {
     if(e.target.tagName !== 'BUTTON') return;
@@ -788,7 +852,7 @@
 (function(){
   // Gold value calculator — uses the same server-cached live price the
   // ticker uses (one cheap same-origin call; GoldAPI is never hit per-visitor).
-  const FX = 58.5;
+  const FX = 61.6;
   const GRAMS_PER_OZ = 31.1035;
   const gramsEl = document.getElementById('calc-grams');
   const karatEl = document.getElementById('calc-karat');
@@ -938,7 +1002,7 @@
   const k18El = document.getElementById('php-18k');
   const changeEl = document.getElementById('change');
   const noteEl = document.getElementById('ticker-note');
-  const FX = 58.5;
+  const FX = 61.6;
   const GRAMS_PER_OZ = 31.1035;
 
   // The Node server fetches GoldAPI.io once a day itself (see
