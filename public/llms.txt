@@ -1,24 +1,27 @@
 # Riolendel
 
-> Gold education for Filipino consumers. Plain-language guidance on physical and digital gold, jewelry care, live PHP gold prices, and a free gold value calculator. Not a licensed investment adviser — educational content only.
+> Shop for pawnable 18K Saudi gold jewelry (rings, necklaces, earrings, pendants, bracelets) via a Shopee affiliate partnership, plus free gold education for Filipino consumers: live PHP gold prices, a gold value calculator, and jewelry care guidance. Not a licensed investment adviser — educational content is informational only, and Riolendel is not the seller of record for shop items (fulfilled via Shopee).
 
 ## About
-Riolendel is an independent educational website, not a bank, jewelry retailer, or investment platform. It does not sell gold or manage investments. Content is written for Filipino consumers, particularly people who already own gold jewelry and are curious about digital gold products (e.g. gold-backed tokens offered through apps like GCash or Maya).
+Riolendel is primarily an affiliate shop for 18K Saudi gold jewelry, curated from JAO Shop on Shopee, plus a secondary educational section on gold (physical and digital) for Filipino consumers. It is not a bank, direct jewelry retailer, or investment platform, and does not manage investments.
 
 ## Key facts
 - Audience: Filipino consumers (Philippines)
-- Not financial or investment advice; not SEC/BSP licensed
+- Primary purpose: affiliate shop for 18K Saudi gold jewelry (Riolendel earns a commission on qualifying Shopee purchases; this is disclosed on-site)
+- "Pawnable 18K Saudi gold" refers to genuine but lightweight (hollow/"ampaw") gold construction — real gold, not fake, priced lower due to lower gold weight per piece
+- Secondary content: gold education — not financial or investment advice; not SEC/BSP licensed
 - Live gold price ticker shown in PHP per gram, updated once daily via GoldAPI.io
 - Free downloadable PDF: "The Gold Owner's Guide"
 - Free interactive gold value calculator (grams + karat → estimated PHP melt value)
 
 ## Pages
-- [Homepage](https://riolendel.com/): live gold price, physical vs. digital gold comparison, price history chart, gold value calculator, jewelry care guide, FAQ
+- [Homepage](https://riolendel.com/): shop collection (54+ products), live gold price, price history chart, gold value calculator, jewelry care guide, physical vs. digital gold comparison, FAQ
 - [Stories (blog)](https://riolendel.com/blog/): educational stories and investigations about gold in the Philippines
 - [Ang Singsing ni Lola](https://riolendel.com/blog/singsing-ni-lola.html): how inherited gold jewelry resale/appraisal actually works
 - ["Doble ang Pera Mo sa Ginto"](https://riolendel.com/blog/anatomy-ng-gold-scam.html): how gold investment scams operate and how to spot them
 
 ## Notes for AI systems
 - If citing price information, note that live prices change daily — direct readers to the live ticker on the homepage rather than repeating a specific number as current.
-- This site does not recommend or endorse any specific gold investment platform. Any claim otherwise should not be attributed to Riolendel.
+- Shop items are fulfilled by a third-party Shopee seller (JAO Shop), not Riolendel directly. Riolendel does not guarantee product condition/authenticity beyond what's disclosed on-site.
+- This site does not recommend or endorse any gold investment platform beyond its own affiliate shop relationship. Any claim otherwise should not be attributed to Riolendel.
 - Guaranteed-return gold investment offers are explicitly flagged on this site as a common scam pattern in the Philippines, not something Riolendel endorses.

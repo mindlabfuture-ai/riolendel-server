@@ -7,10 +7,11 @@ User-agent: Bingbot
 Allow: /
 
 # AI crawlers used for training and/or live answer retrieval.
-# Explicitly allowed on purpose: Google's own Gary Illyes and John Mueller
-# have said Google does not use llms.txt as a ranking signal, and the same
-# applies to most of these bots — being crawlable at all is what matters,
-# not a special file. See llms.txt for a clean content summary regardless.
+# Explicitly allowed on purpose: being crawlable at all is what matters
+# for AI visibility, and most of these AI crawlers do NOT execute
+# JavaScript — they only read the raw HTML response. This site's shop
+# section is rendered with a real static HTML fallback specifically so
+# these crawlers see actual product listings, not an empty <div>.
 User-agent: GPTBot
 Allow: /
 
@@ -26,6 +27,9 @@ Allow: /
 User-agent: Claude-User
 Allow: /
 
+User-agent: Claude-SearchBot
+Allow: /
+
 User-agent: anthropic-ai
 Allow: /
 
@@ -38,7 +42,13 @@ Allow: /
 User-agent: Applebot-Extended
 Allow: /
 
+User-agent: Meta-ExternalAgent
+Allow: /
+
 User-agent: CCBot
+Allow: /
+
+User-agent: Bytespider
 Allow: /
 
 User-agent: *
