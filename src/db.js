@@ -67,10 +67,13 @@ async function init() {
 
   // Site analytics: one row per visit (approximated as "new browser" via
   // a localStorage flag client-side, not a perfect unique-visitor count)
-  // and one row per shop-product click.
+  // and one row per shop-product click. `source` captures ?utm_source=
+  // from the URL (e.g. 'sms', 'facebook') so traffic can be attributed
+  // per-channel, not just as one combined total.
   await pool.query(`
     CREATE TABLE IF NOT EXISTS site_visits (
       id SERIAL PRIMARY KEY,
+      source TEXT DEFAULT 'direct',
       visited_at TIMESTAMPTZ NOT NULL DEFAULT now()
     );
   `);
@@ -78,6 +81,7 @@ async function init() {
     CREATE TABLE IF NOT EXISTS product_clicks (
       id SERIAL PRIMARY KEY,
       slug TEXT NOT NULL,
+      source TEXT DEFAULT 'direct',
       clicked_at TIMESTAMPTZ NOT NULL DEFAULT now()
     );
   `);
@@ -147,19 +151,19 @@ async function getPreviousPrice() {
   }
 }
 
-async function recordVisit() {
+async function recordVisit(source) {
   if (!enabled) return;
   try {
-    await pool.query('INSERT INTO site_visits DEFAULT VALUES');
+    await pool.query('INSERT INTO site_visits (source) VALUES ($1)', [source || 'direct']);
   } catch (err) {
     console.error('[db] Failed to record visit:', err.message);
   }
 }
 
-async function recordClick(slug) {
+async function recordClick(slug, source) {
   if (!enabled) return;
   try {
-    await pool.query('INSERT INTO product_clicks (slug) VALUES ($1)', [slug]);
+    await pool.query('INSERT INTO product_clicks (slug, source) VALUES ($1, $2)', [slug, source || 'direct']);
   } catch (err) {
     console.error('[db] Failed to record click:', err.message);
   }
@@ -170,7 +174,8 @@ async function recordClick(slug) {
 const LAUNCH_DATE = '2026-07-22T00:00:00Z';
 
 async function getStats() {
-  if (!enabled) return { totalVisits: 0, totalClicks: 0, clickRate: 0, launchDate: LAUNCH_DATE, topProducts: [] };
+  const empty = { totalVisits: 0, totalClicks: 0, clickRate: 0, launchDate: LAUNCH_DATE, topProducts: [], bySource: [] };
+  if (!enabled) return empty;
   try {
     const visits = await pool.query('SELECT COUNT(*)::int AS n FROM site_visits WHERE visited_at >= $1', [LAUNCH_DATE]);
     const clicks = await pool.query('SELECT COUNT(*)::int AS n FROM product_clicks WHERE clicked_at >= $1', [LAUNCH_DATE]);
@@ -178,6 +183,24 @@ async function getStats() {
       `SELECT slug, COUNT(*)::int AS clicks FROM product_clicks WHERE clicked_at >= $1 GROUP BY slug ORDER BY clicks DESC LIMIT 10`,
       [LAUNCH_DATE]
     );
+    // Per-channel breakdown: visits and clicks side by side for each
+    // utm_source value seen (e.g. 'sms', 'facebook', 'direct').
+    const visitsBySource = await pool.query(
+      `SELECT source, COUNT(*)::int AS n FROM site_visits WHERE visited_at >= $1 GROUP BY source`,
+      [LAUNCH_DATE]
+    );
+    const clicksBySource = await pool.query(
+      `SELECT source, COUNT(*)::int AS n FROM product_clicks WHERE clicked_at >= $1 GROUP BY source`,
+      [LAUNCH_DATE]
+    );
+    const clicksMap = Object.fromEntries(clicksBySource.rows.map(r => [r.source, r.n]));
+    const sourceSet = new Set([...visitsBySource.rows.map(r => r.source), ...clicksBySource.rows.map(r => r.source)]);
+    const bySource = [...sourceSet].map(source => {
+      const v = visitsBySource.rows.find(r => r.source === source)?.n || 0;
+      const c = clicksMap[source] || 0;
+      return { source, visits: v, clicks: c, clickRate: v > 0 ? Number(((c / v) * 100).toFixed(2)) : 0 };
+    }).sort((a, b) => b.visits - a.visits);
+
     const totalVisits = visits.rows[0].n;
     const totalClicks = clicks.rows[0].n;
     return {
@@ -186,10 +209,11 @@ async function getStats() {
       clickRate: totalVisits > 0 ? Number(((totalClicks / totalVisits) * 100).toFixed(2)) : 0,
       launchDate: LAUNCH_DATE,
       topProducts: topProducts.rows,
+      bySource,
     };
   } catch (err) {
     console.error('[db] Failed to load stats:', err.message);
-    return { totalVisits: 0, totalClicks: 0, clickRate: 0, launchDate: LAUNCH_DATE, topProducts: [] };
+    return empty;
   }
 }
 

@@ -313,7 +313,7 @@
          while the video loads, and stays if video fails for any reason. -->
     <video autoplay muted loop playsinline
       poster="https://images.unsplash.com/photo-1691404801714-07dab9c4dbce?w=1800&q=70&auto=format&fit=crop"
-      src="https://riolendel-shop.b-cdn.net/hero-video.webm"></video>
+      src="https://riolendel-shop.b-cdn.net/hero-video.mp4"></video>
   </div>
   <div class="nav">
     <img src="assets/logo-nav.png" alt="Riolendel" class="logo-img">
@@ -364,7 +364,7 @@
     <div class="section-head">
       <div class="eyebrow">Shop the collection</div>
       <h2>18K Saudi gold, ready to wear</h2>
-      <p>From <b>JAO Shop</b> on Shopee — a seller with a real following among Filipino gold buyers. Tap any piece to view it and buy on Shopee. As an affiliate, Riolendel may earn a small commission on qualifying purchases, at no extra cost to you.</p>
+      <p><b>NEW DEALS</b> found on Shopee with an option for Cash on Delivery (COD), Spaylater and fast delivery (order before 2pm, items will be delivered next day for NCR, 2-3 days in other provinces.</p>
     </div>
 
     <div class="shop-filters" id="shop-filters">
@@ -703,6 +703,25 @@
 
 <script>
 (function(){
+  // Captures ?utm_source=sms (or facebook, tiktok, etc.) from the URL and
+  // remembers it for this session, so both the visit and any subsequent
+  // shop-click tracking can attribute traffic to a channel. sessionStorage
+  // (not localStorage) so it naturally expires when the tab/session ends,
+  // rather than "sticking" to a browser forever.
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const utmSource = params.get('utm_source');
+    if(utmSource){
+      sessionStorage.setItem('riolendel_source', utmSource);
+    }
+  } catch(e) {}
+
+  function getSource(){
+    try { return sessionStorage.getItem('riolendel_source') || 'direct'; }
+    catch(e) { return 'direct'; }
+  }
+  window.riolendelGetSource = getSource;
+
   // Counts a "visit" once per browser, using localStorage as a lightweight
   // approximation of a unique visitor — not a perfect dedupe (cleared
   // storage or a different device counts again), but reasonable and cheap
@@ -710,7 +729,11 @@
   try {
     if(!localStorage.getItem('riolendel_visited')){
       localStorage.setItem('riolendel_visited', '1');
-      fetch('/api/track/visit', { method: 'POST' }).catch(() => {});
+      fetch('/api/track/visit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ source: getSource() }),
+      }).catch(() => {});
     }
   } catch(e) {
     // localStorage unavailable (private browsing, etc.) — skip silently,
@@ -752,7 +775,8 @@
   // Fire-and-forget click tracking — doesn't block or delay the actual
   // navigation to Shopee (link opens in a new tab regardless).
   function trackClick(slug){
-    const payload = JSON.stringify({ slug });
+    const source = (typeof window.riolendelGetSource === 'function') ? window.riolendelGetSource() : 'direct';
+    const payload = JSON.stringify({ slug, source });
     if(navigator.sendBeacon){
       navigator.sendBeacon('/api/track/click', new Blob([payload], { type: 'application/json' }));
     } else {

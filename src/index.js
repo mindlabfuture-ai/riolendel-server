@@ -80,17 +80,23 @@ const trackLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+const ALLOWED_SOURCES = /^[a-z0-9_-]{1,40}$/i;
+function sanitizeSource(s) {
+  return (typeof s === 'string' && ALLOWED_SOURCES.test(s)) ? s.toLowerCase() : 'direct';
+}
+
 app.post('/api/track/visit', trackLimiter, async (req, res) => {
-  await db.recordVisit();
+  const source = sanitizeSource((req.body || {}).source);
+  await db.recordVisit(source);
   res.json({ ok: true });
 });
 
 app.post('/api/track/click', trackLimiter, async (req, res) => {
-  const { slug } = req.body || {};
+  const { slug, source } = req.body || {};
   if (!slug || typeof slug !== 'string' || slug.length > 200) {
     return res.status(400).json({ ok: false, error: 'Invalid slug.' });
   }
-  await db.recordClick(slug);
+  await db.recordClick(slug, sanitizeSource(source));
   res.json({ ok: true });
 });
 
